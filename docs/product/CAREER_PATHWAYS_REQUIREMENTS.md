@@ -29,15 +29,15 @@ Demo role selection is **presentation only**, not secure access control.
 
 1. **Role definition:** role purpose, work outputs, critical tasks, behavioural requirements, reporting line, decision rights, job-specific hazards and necessary external credentials.
 2. **Existing-skill discovery:** jointly identify technical, organisational, commercial and transferable skills already demonstrated in current or previous work; record confidence, context, evidence and unknowns without inferring employee worth.
-5. **Employee interests:** strengths, aspirations, desired pace, restrictions they choose to share, alternate technical/management/cross-functional pathways and choice to stay in role.
-6. **Flexible pathway matching:** compare existing evidence to each target role's actual requirements, then offer direct, lateral, accelerated or stepwise routes with only genuinely missing competencies and authorisations targeted for further development.
-3. **Development plan:** agreed goals, measurable indicators, milestones, real opportunities to practise, mentor, external instruction, manager-provided time/resources, next review.
-4. **Workplace learning:** demonstrate → coached practice → independent practice → observation → feedback → reinforcement, with ability to repeat or adjust.
+3. **Employee interests:** strengths, aspirations, desired pace, restrictions they choose to share, alternate technical/management/cross-functional pathways and choice to stay in role.
+4. **Flexible pathway matching:** compare existing evidence to each target role's actual requirements, then offer direct, lateral, accelerated or stepwise routes with only genuinely missing competencies and authorisations targeted for further development.
+5. **Development plan:** agreed goals, measurable indicators, milestones, real opportunities to practise, mentor, external instruction, manager-provided time/resources, next review.
+6. **Workplace learning:** demonstrate → coached practice → independent practice → observation → feedback → reinforcement, with ability to repeat or adjust.
 7. **Assessment evidence:** observed task performance, dates/context, quality standard, assessor and limitations; evidence can be absent, disputed or expired.
 8. **Scoped authority:** explicit approver, permissions, conditions, timeframe and revocation. Competence alone never grants authority.
 9. **Progress review:** employee input, evidence, unfulfilled management commitments, barriers, alternatives and documented agreed next action.
 10. **Organisational effect:** work coverage before/after, mentor capacity, potential vacancies, succession, workforce replacement and supplier relationships where relevant.
-13. **Career outcomes:** remain in role, progress technically, lead a team, manage a site, move laterally, change occupational field, skip an unnecessary intermediate title, change role by agreement or transition externally. External business ownership is optional, not an expected path.
+11. **Career outcomes:** remain in role, progress technically, lead a team, manage a site, move laterally, change occupational field, skip an unnecessary intermediate title, change role by agreement or transition externally. External business ownership is optional, not an expected path.
 
 ## 4. First-release P0 user stories and acceptance tests
 

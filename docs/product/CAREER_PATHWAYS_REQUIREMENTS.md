@@ -7,9 +7,9 @@
 
 ## 1. Management problem
 
-Trade competence, management readiness, willingness to lead, and organisational demand are not identical. Organisations need a practical way to develop people without assuming that every valuable employee must become a supervisor, or that completing a course automatically authorises a new responsibility. Development also affects workforce coverage, managerial time and replacement needs.
+Trade competence, management readiness, willingness to lead, and organisational demand are not identical. A useful workforce-development system begins with an individual's **demonstrated existing skills**, including skills developed outside the current role, before deciding what additional support is needed. Many workers follow a common progression (e.g., labourer → tradesperson → leading hand → site supervisor → project manager), but it must **not** be a compulsory ladder. Demonstrated readiness may support lateral moves, cross-functional assignments, faster progression or skipping a conventional step when role requirements and independent authority checks permit. Organisations must avoid assuming that every valuable employee should become a supervisor, or that course completion grants responsibility. Development also affects workforce coverage, managerial time and replacement needs.
 
-The proposed product must help a manager and employee **agree on a realistic development direction**, provide structured workplace learning, gather meaningful evidence, review support provided, decide on readiness and manage organisational consequences.
+The proposed product must help a manager and employee **make existing capability visible, agree on a realistic development direction**, provide structured workplace learning, gather meaningful evidence, review support provided, decide on readiness and manage organisational consequences. Pathways represent possible routes to role requirements, **not fixed seniority gates**.
 
 **Not a predictive talent-ranking platform, HRIS or automated promotion engine.**
 
@@ -17,7 +17,7 @@ The proposed product must help a manager and employee **agree on a realistic dev
 
 | User | Job to be done | What an acceptable outcome looks like |
 | --- | --- | --- |
-| Employee / junior tradesperson | Understand choices, expectations, opportunities and support; express preferences | Can choose technical, leadership, current-role or external direction without an implied penalty |
+| Employee / junior tradesperson | Have existing skills recognised; understand choices, expectations, opportunities and support; express preferences | Can choose technical, cross-functional, leadership, current-role or external direction without an implied penalty or prescribed sequence |
 | Mentor / experienced leading hand | Teach, demonstrate, observe and give actionable feedback | Can record work-based practice and limitations without granting unauthorised permission |
 | Manager / GM | Plan development, address organisational constraints, allocate support, verify readiness and decide on responsibility | Can explain the evidence and constraints behind a **human decision** |
 | Owner / executive | See workforce coverage, key-person dependency and support commitments | Can assess the organisational consequences without reading unnecessary sensitive personal detail |
@@ -28,14 +28,16 @@ Demo role selection is **presentation only**, not secure access control.
 ## 3. Proposed capability map
 
 1. **Role definition:** role purpose, work outputs, critical tasks, behavioural requirements, reporting line, decision rights, job-specific hazards and necessary external credentials.
-2. **Employee interests:** strengths, aspirations, desired pace, restrictions they choose to share, alternate technical/management pathways and choice to stay in role.
+2. **Existing-skill discovery:** jointly identify technical, organisational, commercial and transferable skills already demonstrated in current or previous work; record confidence, context, evidence and unknowns without inferring employee worth.
+5. **Employee interests:** strengths, aspirations, desired pace, restrictions they choose to share, alternate technical/management/cross-functional pathways and choice to stay in role.
+6. **Flexible pathway matching:** compare existing evidence to each target role's actual requirements, then offer direct, lateral, accelerated or stepwise routes with only genuinely missing competencies and authorisations targeted for further development.
 3. **Development plan:** agreed goals, measurable indicators, milestones, real opportunities to practise, mentor, external instruction, manager-provided time/resources, next review.
 4. **Workplace learning:** demonstrate → coached practice → independent practice → observation → feedback → reinforcement, with ability to repeat or adjust.
-5. **Assessment evidence:** observed task performance, dates/context, quality standard, assessor and limitations; evidence can be absent, disputed or expired.
-6. **Scoped authority:** explicit approver, permissions, conditions, timeframe and revocation. Competence alone never grants authority.
-7. **Progress review:** employee input, evidence, unfulfilled management commitments, barriers, alternatives and documented agreed next action.
-8. **Organisational effect:** work coverage before/after, mentor capacity, potential vacancies, succession, workforce replacement and supplier relationships where relevant.
-9. **Career outcomes:** remain in role, progress technically, lead a team, manage a site, move laterally, change role by agreement or transition externally. External business ownership is optional, not an expected path.
+7. **Assessment evidence:** observed task performance, dates/context, quality standard, assessor and limitations; evidence can be absent, disputed or expired.
+8. **Scoped authority:** explicit approver, permissions, conditions, timeframe and revocation. Competence alone never grants authority.
+9. **Progress review:** employee input, evidence, unfulfilled management commitments, barriers, alternatives and documented agreed next action.
+10. **Organisational effect:** work coverage before/after, mentor capacity, potential vacancies, succession, workforce replacement and supplier relationships where relevant.
+13. **Career outcomes:** remain in role, progress technically, lead a team, manage a site, move laterally, change occupational field, skip an unnecessary intermediate title, change role by agreement or transition externally. External business ownership is optional, not an expected path.
 
 ## 4. First-release P0 user stories and acceptance tests
 
@@ -53,6 +55,10 @@ Demo role selection is **presentation only**, not secure access control.
 | CAP-10 | As a GM, I can model one employee changing responsibilities | Uncovered responsibilities or mentorship load are exposed, with options to recruit, redistribute, develop or delay |
 | CAP-11 | As a portfolio visitor, I can compare management decisions | The same initial scenario can be reset/replayed; differences and assumptions are explained |
 | CAP-12 | As a visitor, I can see provenance and limitations | Fictional characters/data are unmistakable; any separate real leadership case uses cleared sources only |
+| CAP-13 | As an employee, I can document relevant skills I already have | Previously demonstrated skills can satisfy equivalent role requirements after evidence/scope review; no redundant training is required solely due to current job title |
+| CAP-14 | As a manager, I can compare more than one viable progression route | Direct, lateral, stepwise and cross-functional paths are available where defensible; the system never requires an arbitrary intermediate title |
+| CAP-15 | As an authorised decision-maker, I can consider accelerated progression without bypassing safeguards | All destination-role requirements, external credentials, assessor scope and delegated authority still apply even when levels are skipped |
+| CAP-16 | As an employee and manager, I can plan training around uncovered capability rather than job-title assumptions | Skill gaps and employee-selected interests shape a targeted learning plan; transferable strengths reduce duplicated instruction |
 
 Acceptance tests are proposed product criteria, **not tests that have already passed**.
 
@@ -64,6 +70,9 @@ Acceptance tests are proposed product criteria, **not tests that have already pa
 - A qualification, assessment and authority grant can have different scopes, expiry dates and prerequisites.
 - Delegation cannot exceed the grantor's permission, organisational policies or relevant legal requirements.
 - Employee interest and informed choice must affect the proposed pathway; declined promotion is not scored negatively.
+- The default career ladder is illustrative, not prescriptive. No requirement may depend *only* on a previous job title if equivalent competence and relevant legal/permission prerequisites can be demonstrated.
+- Recognition of prior experience requires contextual evidence and, where applicable, authorised assessment; a manager's impression or past job title alone is insufficient to grant regulated work or authority.
+- Accelerated and lateral progression must remain open to all eligible employees on transparent, consistent criteria; avoid hidden favouritism or unsupported claims of 'high potential'.
 - No automated adverse employment decisions, worth/rank scores, personality diagnosis or forced career outcome.
 - Development indicators are role-specific and evidence-backed; no single composite "leadership potential" number.
 - Manager obligations must be recorded and reviewed alongside employee milestones.
@@ -76,7 +85,9 @@ Acceptance tests are proposed product criteria, **not tests that have already pa
 | Entity | Important fields / relations |
 | --- | --- |
 | Organisation, Site, Team | `id`, version, reporting/coverage relationships |
-| Role and RoleRequirement | role version, expected tasks, evidence criteria, legal/external prerequisite where applicable |
+| Role and RoleRequirement | role version, expected tasks, evidence criteria, legal/external prerequisite where applicable; **no mandatory prerequisite job title unless explicitly justified** |
+| SkillProfile / TransferableSkill | skill concept, evidence/context, source, employee input, verification status, linked requirements across different roles |
+| PathwayOption | origin/current role, destination role(s), required gap closure, lateral/stepwise/direct movement, employee agreement, dependencies and safeguards |
 | Person (fictional) | fictional identifier, work assignment, chosen development interests |
 | CompetenceEvidence | skill/requirement, context, observation, date, assessor, status, source and limitation |
 | LearningActivity | method, instructor, attendance, practice, effectiveness follow-up |
@@ -107,8 +118,8 @@ For each indicator define unit, source, denominator (where applicable), collecti
 The primary visitor journey should be usable without sign-in and contain no real personnel data. Begin with a brief employer-facing introduction, then the fictional employee's perspective and manager's options. Use a compact action-focused workspace, not a dashboard of employee scores. The UI should expose why a step is available or blocked, allow back/reset/compare, and remain keyboard accessible and mobile readable.
 
 Candidate screens, **not yet wireframed**:
-1. Context and people/role requirements.
-2. Employee aspirations and development options.
+1. Context, existing strengths and work/role requirements.
+2. Employee aspirations and **multiple possible development routes** (including cross-functional/direct).
 3. Agreed plan with manager commitments.
 4. Learning and work evidence.
 5. Review and bounded delegation decision.
@@ -123,8 +134,8 @@ A difficult role-alignment conversation is a **separate researched scenario**; i
 
 ## 11. Questions requiring owner input before release-one design
 
-1. What exact role pathway should anchor the first fictional journey (site operative → leading hand → site supervisor; or another)?
-2. Which 3–5 **observable** tasks distinguish readiness for that next role?
+1. Which *common* roles should be shown in the first fictional business, and what real-world examples justify moving directly or laterally between them?
+2. Which 3–5 **observable** requirements distinguish readiness for the destination role regardless of the person's current title?
 3. In actual practice, what evidence did mentors and managers use before increasing responsibility?
 4. Which review cadence was used for which employee types, and what did a review record contain?
 5. What responsibility changed first, and what approval limits applied?

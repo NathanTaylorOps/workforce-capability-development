@@ -2,7 +2,7 @@
 
 **A practical, skills-first demonstration of people development, managerial judgment and organisational capability.**
 
-**Status: Functional prototype (v0.3 proposed on this branch).** The existing live version remains on `main` until this pull request is merged and Pages redeployed. This version adds a fictional two-way weekly development review alongside the evidence workflow. The [GitHub Pages site](https://nathantaylorops.github.io/workforce-capability-development/) deploys from `main` after successful publishing checks; it may temporarily run an earlier version while a feature pull request is open or deployment is underway. The first fictional leadership scenario is implemented and GitHub Pages reports a successful deployment. This is **not** a complete HR platform or a production-ready tool. The hosted site's complete browser functionality has not yet been independently smoke-tested after deployment.
+**Status: Functional prototype (v0.4 source proposed for review).** The public Leadership Studio uses entirely fictional data and demonstrates skills-first development, practical evidence, a two-way weekly review and proposed workforce-capacity decisions. The published [GitHub Pages site](https://nathantaylorops.github.io/workforce-capability-development/) follows the `main` branch; v0.4 will appear only after this PR is merged and deployment passes. This is a portfolio demonstration, **not** a production HR, personnel assessment, staffing or financial application. Complete independent live-site and accessibility validation remain outstanding.
 
 ## Experience the prototype
 
@@ -87,7 +87,7 @@ It is part of [NathanTaylorOps](https://github.com/NathanTaylorOps)'s operations
 | Repository foundation | Done |
 | Initial discovery, requirements and UX documentation | Drafted and merged; research ongoing |
 | First static leadership scenario | Merged into `main` in [PR #5](https://github.com/NathanTaylorOps/workforce-capability-development/pull/5) |
-| Scenario-rule tests | v0.3 has **23 local unit tests passing**; see the latest [Actions checks](https://github.com/NathanTaylorOps/workforce-capability-development/actions/workflows/ci.yml) for branch and deployed `main` verification |
+| Scenario-rule tests | v0.4 has **30 local unit tests passing**; see the latest [Actions checks](https://github.com/NathanTaylorOps/workforce-capability-development/actions/workflows/ci.yml) for branch and deployed `main` verification |
 | Browser interaction testing | Local scripted desktop/mobile flow performed; report below |
 | Public GitHub Pages deployment | GitHub Actions **successful**, [published URL](https://nathantaylorops.github.io/workforce-capability-development/); live browser smoke test still outstanding |
 | Independent reviewer / accessibility and release validation | Not yet completed |
@@ -98,8 +98,16 @@ It is part of [NathanTaylorOps](https://github.com/NathanTaylorOps)'s operations
 
 The v0.2 workflow requires a completed fictional mentoring session before simulated independent practice can be recorded. Coached records and unreviewed observations do **not** prove independent competence. After two pre-authored independent planning tasks, the visitor must explicitly perform a fictional GM evidence review before the bounded planning assignment can be considered. Independent site-supervision authority remains blocked. Manager support changes invalidate previously generated decisions so exported records cannot silently become stale. All evidence, checks and reviewer roles are invented teaching fixtures; the demo does not authenticate reviewers or certify workers.
 
-## Proposed weekly development review in v0.3
+## Weekly development review in v0.3
 
 The fictional week-two check-in shows work indicators **with limitations**, mentor feedback, a pre-written employee perspective, the organisation's outstanding support commitments and three different manager follow-up actions. The manager must hear Alex before recording a review. The selected action records its owner, milestone and next review, and flows into the eventual decision memo. A limited site-planning assignment also requires an agreed coached-handover development action, independently demonstrated planning tasks and an explicit fictional GM evidence review. No KPI or check-in independently grants competence, credentials or work authority.
 
 **Verification scope:** 23/23 scenario tests pass locally. Desktop and mobile browser interaction smoke tests used the actual HTML/CSS and a temporary, in-memory concatenation of the three application modules because local HTTP navigation is blocked in the verification environment. The deployed module graph and full live-site browser walkthrough still need verification after merge. [Test plan and limitations](docs/qa/WEEKLY_REVIEW_V03.md).
+
+## Workforce capacity and succession in v0.4
+
+The fictional GM now explicitly plans how four hours of Alex's existing field assignment will be managed if a supervised planning opportunity goes ahead. Three options—stage the work, arrange qualified relief or defer the reassignment—have different coverage consequences. A bounded assignment requires not only the earlier competency and weekly-review safeguards, but also an explicit fictional GM workforce-coverage review. A deferral choice blocks the assignment; any planning or staffing assumptions are labelled as illustrative. Site-supervisor appointment remains restricted, and no successor is inferred from technical competence.
+
+The decision memo and outcome show field work retained, relief hours, deferred work, mentor availability, continuing GM accountability and the absence of an independently authorised supervisor successor. Changing a coverage choice invalidates any older decision.
+
+**Verification before PR review:** 30/30 local scenario tests and scripted desktop/mobile Chromium walkthroughs passed using in-memory concatenated JavaScript modules. Actual live ES-module loading, independent usability review and formal accessibility audit remain outstanding. [Scope, assumptions and verification](docs/qa/WORKFORCE_COVERAGE_V04.md).

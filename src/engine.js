@@ -1,4 +1,4 @@
-import { BASE_OBSERVATIONS, FIXTURE_VERSION, PATHWAYS, SKILLS, WEEKLY_CHECKIN } from './data.js';
+import { BASE_OBSERVATIONS, COVERAGE_OPTIONS, FIXTURE_VERSION, PATHWAYS, SKILLS, WEEKLY_CHECKIN, WORKFORCE_FIXTURE } from './data.js';
 
 /** Immutable, deterministic demo state: no real personal records, network or browser storage. */
 export function initialState() {
@@ -12,6 +12,7 @@ export function initialState() {
     training: 'delayed',
     mentoring: 1,
     weekly: { heardEmployee: false, record: null },
+    coverage: { option: null, confirmed: false },
     employeeFeedback: 'Interested in growing, but wants supported practice before leading alone.',
     events: [],
     decision: null
@@ -39,7 +40,7 @@ export function updateStep(state, index) {
 export function choosePath(state, id) {
   if (!PATHWAYS[id]) throw new Error('Unknown development pathway');
   if (state.path === id) return state;
-  return { ...state, path: id, weekly: { heardEmployee: false, record: null },
+  return { ...state, path: id, weekly: { heardEmployee: false, record: null }, coverage: { option: null, confirmed: false },
     employeeFeedback: 'Considering a different development direction; a fresh two-way check-in is needed.',
     decision: null, events: [...state.events, { type: 'path', detail: PATHWAYS[id].title }] };
 }
@@ -112,13 +113,58 @@ export function recordWeeklyReview(state, actionId) {
     training: actionId === 'training' ? 'rescheduled' : state.training,
     decision: null, events: [...state.events, { type: 'weekly-review', detail: option.title }] };
 }
+/** Site coverage is separately planned and approved; competence alone cannot create capacity. */
+export function chooseCoveragePlan(state, id) {
+  if (state.path !== 'site') throw new Error('This coverage scenario is available on the site coordination pathway.');
+  if (!COVERAGE_OPTIONS.some(option => option.id === id)) throw new Error('Unknown workforce coverage option.');
+  if (state.coverage.option === id) return state;
+  return { ...state, coverage: { option: id, confirmed: false }, decision: null,
+    events: [...state.events, { type: 'coverage-choice', detail: id }] };
+}
+export function confirmCoveragePlan(state) {
+  if (state.path !== 'site' || !state.coverage.option) throw new Error('Select a valid coverage option before confirming the fictional GM review.');
+  if (state.coverage.confirmed) return state;
+  return { ...state, coverage: { ...state.coverage, confirmed: true }, decision: null,
+    events: [...state.events, { type: 'coverage-review', detail: state.coverage.option }] };
+}
+/** Calculates transparent *illustrative* consequences, not a forecast of staffing or finance. */
+export function workforceImpact(state, action = 'scope') {
+  const applied = action === 'scope' && state.path === 'site' && state.coverage.option !== 'defer';
+  const plannedHours = WORKFORCE_FIXTURE.assignedFieldHours;
+  const releasedHours = applied ? WORKFORCE_FIXTURE.developmentAssignmentHours : 0;
+  const option = state.coverage.option;
+  const confirmed = Boolean(state.coverage.confirmed);
+  const covered = applied && confirmed && option === 'relief' ? releasedHours : 0;
+  const deferred = applied && confirmed && option === 'stage' ? releasedHours : 0;
+  const unaddressed = Math.max(0, releasedHours - covered - deferred);
+  const consequence = !applied ?
+    'No field-work hours reassigned by this decision; any development transition still needs a later capacity check.' :
+    option === 'relief' && confirmed ?
+      'Four fictional hours assigned to qualified relief, subject to real availability, scope and budget checks. Casey retains site accountability.' :
+    option === 'stage' && confirmed ?
+      'Four noncritical field-work hours moved to the following week; schedule and dependencies must be confirmed. Casey retains site accountability.' :
+      'Four field-work hours would have no agreed coverage. The bounded task must not be assigned yet.';
+  return {
+    plan: option, confirmed, baselineFieldHours: plannedHours,
+    releasedFieldHours: releasedHours, alexFieldHours: plannedHours - releasedHours,
+    reliefHours: covered, deferredHours: deferred, unaddressedHours: unaddressed,
+    mentorAvailableHours: WORKFORCE_FIXTURE.mentorAvailableHours,
+    mentorReservedHours: WORKFORCE_FIXTURE.mentorReservedHours,
+    mentorUnallocatedHours: WORKFORCE_FIXTURE.mentorAvailableHours - WORKFORCE_FIXTURE.mentorReservedHours,
+    coordinationOwner: WORKFORCE_FIXTURE.coordinationOwner,
+    successorStatus: 'No independent site-supervisor successor has been established; Alex is still developing.',
+    consequence,
+    provisional: true
+  };
+}
 export function canAssignScopedPlanning(state) {
-  return state.path === 'site' && state.weekly.record?.actionId === 'handover' && skillStatus(state, 'planning') === 'supported';
+  return state.path === 'site' && state.weekly.record?.actionId === 'handover' && skillStatus(state, 'planning') === 'supported' &&
+    state.coverage.confirmed && ['stage', 'relief'].includes(state.coverage.option) && workforceImpact(state).unaddressedHours === 0;
 }
 export function decisionChoices(state) {
   return [
     { id: 'coach', title: 'Continue supported practice', description: 'Keep coaching in place and reassess the evidence.', available: true },
-    { id: 'scope', title: 'Assign a bounded planning task', description: 'GM approves one mentored two-trade look-ahead; no site-supervision authority.', available: canAssignScopedPlanning(state), reason: state.path !== 'site' ? 'Available on the site-coordination pathway.' : !state.weekly.record ? 'First record a two-way weekly development review on Step 3.' : state.weekly.record.actionId !== 'handover' ? 'The agreed weekly action was not coached handover practice; this pathway needs a new agreed practice plan.' : 'Needs two independent planning demonstrations and a fictional GM evidence review; coached notes alone are insufficient.' },
+    { id: 'scope', title: 'Assign a bounded planning task', description: 'GM approves one mentored two-trade look-ahead; no site-supervision authority.', available: canAssignScopedPlanning(state), reason: state.path !== 'site' ? 'Available on the site-coordination pathway.' : !state.weekly.record ? 'First record a two-way weekly development review on Step 3.' : state.weekly.record.actionId !== 'handover' ? 'The agreed weekly action was not coached handover practice; this pathway needs a new agreed practice plan.' : skillStatus(state, 'planning') !== 'supported' ? 'Needs two independent planning demonstrations and a fictional GM evidence review; coached notes alone are insufficient.' : !state.coverage.option ? 'Choose a team coverage response below before releasing Alex from field work.' : state.coverage.option === 'defer' ? 'The team coverage plan defers this assignment. Choose a different plan if the task must proceed now.' : !state.coverage.confirmed ? 'Record the fictional GM coverage review below before committing to the assignment.' : 'The workforce and authority requirements must be reviewed.' },
     { id: 'redirect', title: 'Explore a different contribution', description: 'Respect the employee’s preference and compare technical or cross-functional routes.', available: true },
     { id: 'appoint', title: 'Appoint independent site supervisor', description: 'Full authority over the site.', available: false, reason: 'Blocked: safety/authority and people-leadership requirements are not verified. Training or tenure does not override this.' }
   ];
@@ -129,24 +175,25 @@ export function decide(state, decisionId) {
   let summary;
   let next;
   let impact;
+  const workforce = workforceImpact(state, decisionId);
   if (decisionId === 'scope') {
     summary = 'Approve a supervised two-trade planning assignment, not a site-supervisor appointment.';
     next = 'Casey (GM) approves scope; Morgan observes the work; review after the assignment.';
-    impact = 'Illustrative: two weekly mentor hours allocated; one of three available hours remains. Casey retains site accountability.';
+    impact = workforce.consequence;
   } else if (decisionId === 'redirect') {
     summary = 'Discuss technical-specialist and cross-functional directions without penalising the employee.';
     next = 'Ask Alex to select a preferred direction and agree on the next practical opportunity.';
-    impact = 'Current coverage is retained while a revised development assignment is considered.';
+    impact = workforce.consequence;
   } else {
     summary = 'Continue coached practice; do not expand independent authority yet.';
     next = 'Complete a practice task, obtain the employee’s feedback and review current evidence.';
-    impact = 'Existing site responsibilities remain with the authorised managers; mentor time still needs protecting.';
+    impact = workforce.consequence;
   }
   const record = {
     fixture: state.version,
     pathway: PATHWAYS[state.path].title,
     action: option.title,
-    summary, next, impact,
+    summary, next, impact, workforce,
     known: ['Practical trade quality supported by example observations.', 'Commercial awareness supported by example observations.'],
     unknown: SKILLS.filter(s => skillStatus(state, s.id) === 'unknown').map(s => s.name),
     needsReview: SKILLS.filter(s => skillStatus(state, s.id) === 'review').map(s => s.name),
@@ -181,6 +228,9 @@ export function memoText(record) {
     'Assessment method: coached notes do not establish independent competence; new observations require fictional GM review.',
     `Authority limit: ${record.restricted}`,
     `Manager support: ${record.managerSupport.completedMentoringSessions}/2 mentoring sessions; external training ${record.managerSupport.training}`,
+    `Workforce plan: ${record.workforce?.plan ?? 'Not selected'}; fictional GM review: ${record.workforce?.confirmed ? 'recorded' : 'not recorded'}`,
+    `Assigned field hours: ${record.workforce?.baselineFieldHours ?? 'unknown'}; released: ${record.workforce?.releasedFieldHours ?? 'unknown'}; relief: ${record.workforce?.reliefHours ?? 'unknown'}; deferred: ${record.workforce?.deferredHours ?? 'unknown'}; unaddressed: ${record.workforce?.unaddressedHours ?? 'unknown'}`,
+    `Succession status: ${record.workforce?.successorStatus ?? 'Not assessed'}`,
     `Workforce consequence: ${record.impact}`,
     `Next action: ${record.next}`,
     'This record represents invented scenario choices only. It is not an assessment of a real person or employment advice.'

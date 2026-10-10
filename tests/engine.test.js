@@ -1,9 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { initialState, hearEmployee, recordWeeklyReview, skillStatus, choosePath, addSampleObservation, reviewEvidence, decisionChoices, decide, rescheduleTraining, recordMentoring, memoText, supportSummary, selectSkill, updateStep, observationsFor } from '../src/engine.js';
+import { initialState, hearEmployee, recordWeeklyReview, skillStatus, chooseCoveragePlan, confirmCoveragePlan, workforceImpact, choosePath, addSampleObservation, reviewEvidence, decisionChoices, decide, rescheduleTraining, recordMentoring, memoText, supportSummary, selectSkill, updateStep, observationsFor } from '../src/engine.js';
 
 const withMentor = state => recordMentoring(state);
 const withWeeklyReview = state => recordWeeklyReview(hearEmployee(state), 'handover');
+const withCoverage = (state, option = 'stage') => confirmCoveragePlan(chooseCoveragePlan(state, option));
 const withPlanningPractice = state => addSampleObservation(addSampleObservation(withMentor(state), 'planning'), 'planning');
 const withReviewedPlanning = state => reviewEvidence(withPlanningPractice(withWeeklyReview(state)), 'planning');
 
@@ -48,10 +49,13 @@ test('fictional GM review unlocks only bounded planning task consideration', () 
   assert.equal(skillStatus(reviewed, 'planning'), 'supported');
   assert.equal(reviewEvidence(reviewed, 'planning'), reviewed);
   assert.equal(skillStatus(prepared, 'planning'), 'review');
-  assert.equal(decisionChoices(reviewed).find(x => x.id === 'scope').available, true);
+  assert.equal(decisionChoices(reviewed).find(x => x.id === 'scope').available, false);
+  assert.match(decisionChoices(reviewed).find(x => x.id === 'scope').reason, /coverage response/);
+  const covered = withCoverage(reviewed);
+  assert.equal(decisionChoices(covered).find(x => x.id === 'scope').available, true);
   assert.equal(decisionChoices(reviewed).find(x => x.id === 'appoint').available, false);
   assert.throws(() => decide(reviewed, 'appoint'), /not permitted/);
-  const assigned = decide(reviewed, 'scope');
+  const assigned = decide(covered, 'scope');
   assert.match(assigned.decision.summary, /not a site-supervisor appointment/);
   assert.match(assigned.decision.impact, /Casey retains site accountability/);
   assert.equal(assigned.decision.evidence.find(e => e.skill === 'Planning & sequencing').managerReviewed, true);
@@ -113,7 +117,7 @@ test('decision memo retains uncertain evidence and fictional provenance', () => 
   assert.ok(a.decision.needsReview.includes('Planning & sequencing'));
 });
 test('actions produce identical results when replayed from initial fixture', () => {
-  const make = () => decide(rescheduleTraining(withReviewedPlanning(choosePath(initialState(), 'site'))), 'scope');
+  const make = () => decide(rescheduleTraining(withCoverage(withReviewedPlanning(choosePath(initialState(), 'site')))), 'scope');
   assert.deepEqual(make(), make());
 });
 test('navigation and invalid inputs handled safely', () => {
@@ -173,7 +177,8 @@ test('scoped planning requires both evidence verification and a two-way review',
   assert.equal(decisionChoices(evidenceOnly).find(x => x.id === 'scope').available, false);
   assert.match(decisionChoices(evidenceOnly).find(x => x.id === 'scope').reason, /two-way weekly/);
   const reviewed = withWeeklyReview(evidenceOnly);
-  assert.equal(decisionChoices(reviewed).find(x => x.id === 'scope').available, true);
+  assert.equal(decisionChoices(reviewed).find(x => x.id === 'scope').available, false);
+  assert.equal(decisionChoices(withCoverage(reviewed)).find(x => x.id === 'scope').available, true);
   assert.equal(decisionChoices(reviewed).find(x => x.id === 'appoint').available, false);
 });
 
@@ -216,4 +221,90 @@ test('conducting a check-in invalidates older simulated management decisions', (
   const next = recordWeeklyReview(heard, 'handover');
   assert.equal(next.decision, null);
   assert.deepEqual(withWeeklyReview(initialState()), withWeeklyReview(initialState()));
+});
+
+
+test('field coverage choice is a separate prerequisite from competence and weekly coaching', () => {
+  const reviewed = withReviewedPlanning(initialState());
+  assert.equal(reviewed.coverage.option, null);
+  assert.equal(decisionChoices(reviewed).find(x => x.id === 'scope').available, false);
+  assert.throws(() => confirmCoveragePlan(reviewed), /Select a valid/);
+  const selected = chooseCoveragePlan(reviewed, 'stage');
+  assert.equal(selected.coverage.confirmed, false);
+  assert.equal(decisionChoices(selected).find(x => x.id === 'scope').available, false);
+  assert.match(decisionChoices(selected).find(x => x.id === 'scope').reason, /GM coverage review/);
+  const ready = confirmCoveragePlan(selected);
+  assert.equal(decisionChoices(ready).find(x => x.id === 'scope').available, true);
+  assert.equal(confirmCoveragePlan(ready), ready);
+  assert.throws(() => decide(selected, 'scope'), /not permitted/);
+});
+
+test('staged reassignment explicitly moves work instead of counting it as eliminated', () => {
+  const planned = withCoverage(withReviewedPlanning(initialState()), 'stage');
+  const impact = workforceImpact(planned);
+  assert.equal(impact.baselineFieldHours, 32);
+  assert.equal(impact.releasedFieldHours, 4);
+  assert.equal(impact.alexFieldHours, 28);
+  assert.equal(impact.deferredHours, 4);
+  assert.equal(impact.reliefHours, 0);
+  assert.equal(impact.unaddressedHours, 0);
+  assert.equal(impact.mentorUnallocatedHours, 1);
+  assert.match(impact.successorStatus, /No independent site-supervisor successor/);
+  const decision = decide(planned, 'scope');
+  assert.equal(decision.decision.workforce.deferredHours, 4);
+  assert.match(memoText(decision.decision), /Assigned field hours: 32; released: 4/);
+  assert.match(memoText(decision.decision), /Succession status/);
+});
+
+test('qualified-relief option is an assumed scenario capacity, not real staffing verification', () => {
+  const planned = withCoverage(withReviewedPlanning(initialState()), 'relief');
+  const impact = workforceImpact(planned);
+  assert.equal(impact.reliefHours, 4);
+  assert.equal(impact.deferredHours, 0);
+  assert.equal(impact.unaddressedHours, 0);
+  assert.equal(impact.provisional, true);
+  assert.match(impact.consequence, /real availability, scope and budget checks/);
+});
+
+test('deferring transition protects delivery and does not unlock the assignment', () => {
+  const planned = withCoverage(withReviewedPlanning(initialState()), 'defer');
+  const impact = workforceImpact(planned);
+  assert.equal(impact.alexFieldHours, 32);
+  assert.equal(impact.releasedFieldHours, 0);
+  assert.equal(impact.unaddressedHours, 0);
+  assert.equal(decisionChoices(planned).find(x => x.id === 'scope').available, false);
+  assert.match(decisionChoices(planned).find(x => x.id === 'scope').reason, /defers this assignment/);
+  const coaching = decide(planned, 'coach');
+  assert.equal(coaching.decision.workforce.alexFieldHours, 32);
+  assert.equal(coaching.decision.workforce.releasedFieldHours, 0);
+});
+
+test('changing a coverage decision clears confirmation and any previous decision', () => {
+  const staged = withCoverage(withReviewedPlanning(initialState()), 'stage');
+  const assigned = decide(staged, 'scope');
+  const revised = chooseCoveragePlan(assigned, 'relief');
+  assert.equal(revised.decision, null);
+  assert.equal(revised.coverage.confirmed, false);
+  assert.equal(decisionChoices(revised).find(x => x.id === 'scope').available, false);
+  assert.equal(chooseCoveragePlan(revised, 'relief'), revised);
+  assert.equal(decisionChoices(confirmCoveragePlan(revised)).find(x => x.id === 'scope').available, true);
+});
+
+test('alternative career direction resets coverage without erasing genuine work evidence', () => {
+  const original = withCoverage(withReviewedPlanning(initialState()));
+  const changed = choosePath(original, 'operations');
+  assert.equal(changed.coverage.option, null);
+  assert.equal(changed.coverage.confirmed, false);
+  assert.equal(changed.observations.length, original.observations.length);
+  assert.equal(decisionChoices(changed).find(x => x.id === 'scope').available, false);
+  assert.throws(() => chooseCoveragePlan(changed, 'stage'), /site coordination pathway/);
+});
+
+test('invalid workforce options never become available or fabricate approved cover', () => {
+  assert.throws(() => chooseCoveragePlan(initialState(), 'free-staff'), /Unknown workforce coverage/);
+  const state = initialState();
+  assert.equal(workforceImpact(state).unaddressedHours, 4);
+  assert.equal(workforceImpact(state, 'coach').releasedFieldHours, 0);
+  assert.equal(workforceImpact(state, 'redirect').releasedFieldHours, 0);
+  assert.equal(decisionChoices(state).find(x => x.id === 'appoint').available, false);
 });

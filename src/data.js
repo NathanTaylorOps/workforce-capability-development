@@ -1,5 +1,5 @@
 /** All organisations, characters, observations, costs and outcomes below are fictional. */
-export const FIXTURE_VERSION = '2026-10-demo-3';
+export const FIXTURE_VERSION = '2026-10-demo-4';
 export const SCENARIO_NAME = 'Hawthorn Projects';
 export const STEPS = [
   { id: 'brief', title: 'The situation', short: 'Brief' },
@@ -48,8 +48,26 @@ export const WEEKLY_CHECKIN = {
     { id: 'explore', title: 'Explore estimating alongside site work', action: 'Alex will observe an estimating review before committing to a pathway change.', owner: 'Casey to arrange a short estimating-team introduction.', milestone: 'Ask Alex what was learned and whether this direction fits.' }
   ]
 };
+/** Explicit teaching assumptions; hours are assigned work in one fictional week, not a complete staffing model. */
+export const WORKFORCE_FIXTURE = Object.freeze({
+  assignedFieldHours: 32,
+  developmentAssignmentHours: 4,
+  mentorAvailableHours: 3,
+  mentorReservedHours: 2,
+  coordinationOwner: 'Casey · GM',
+  projects: 2
+});
+export const COVERAGE_OPTIONS = [
+  { id: 'stage', title: 'Stage the transition', summary: 'Resequence four noncritical field-work hours into the following week.', caveat: 'Casey must verify project dependencies and communicate the revised sequence before action.' },
+  { id: 'relief', title: 'Arrange qualified cover', summary: 'Identify four hours of suitable relief capacity for Alex’s field responsibilities.', caveat: 'Casey must check availability, work scope, qualifications and budget before releasing Alex.' },
+  { id: 'defer', title: 'Protect delivery; develop later', summary: 'Keep Alex on the existing field plan this week and revisit the development assignment.', caveat: 'Preserves current allocation; no planning-task delegation can occur this week.' }
+];
 export const SCENARIO_ASSUMPTIONS = [
   'Two fictional projects require coordination this week.',
+  'The illustrated week includes 32 assigned field-work hours for Alex; this is not a full-time employment assumption.',
+  'A four-hour supervised planning assignment would displace four of those field-work hours.',
+  'The manager must explicitly choose and confirm how field-work coverage is managed before approving the fictional assignment.',
+  'Resequencing work does not make it disappear; relief must be qualified and financially approved in a real workplace.',
   'The senior leading hand has three hours available for mentoring.',
   'The development plan allocates two of those hours.',
   'A supported requirement in the fictional demo needs two independently demonstrated task records and a simulated manager evidence review.',

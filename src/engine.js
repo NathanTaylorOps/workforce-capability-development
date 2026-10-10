@@ -8,6 +8,7 @@ export function initialState() {
     path: 'site',
     selectedSkill: 'planning',
     observations: BASE_OBSERVATIONS.map(o => ({ ...o })),
+    reviews: {},
     training: 'delayed',
     mentoring: 1,
     employeeFeedback: 'Interested in growing, but wants supported practice before leading alone.',
@@ -20,9 +21,12 @@ export function observationsFor(state, id) { return state.observations.filter(x 
 export function skillStatus(state, id) {
   const skill = skillById(id);
   if (!skill) throw new Error('Unknown competency');
-  const count = observationsFor(state, id).length;
-  if (count === 0) return 'unknown';
-  return count >= skill.required ? 'supported' : 'review';
+  const observations = observationsFor(state, id);
+  if (observations.length === 0) return 'unknown';
+  // A coached observation records development, not independent mastery.
+  // New independent records remain provisional until the fictional GM reviews them.
+  const verified = observations.filter(o => o.practice === 'independent' && (o.assessment === 'verified' || state.reviews[id] === true)).length;
+  return verified >= skill.required ? 'supported' : 'review';
 }
 export function skillStatusLabel(status) {
   return ({ supported: 'Evidence supports', review: 'Needs review', unknown: 'Unknown' })[status] ?? 'Unknown';
@@ -39,24 +43,43 @@ export function selectSkill(state, id) {
   if (!skillById(id)) throw new Error('Unknown competency');
   return { ...state, selectedSkill: id };
 }
-/** A one-time additional, pre-written, fictional observation per competency. */
+/** Limited, pre-authored synthetic practice records. Coaching is required before independent practice. */
 export function addSampleObservation(state, id) {
   const skill = skillById(id);
   if (!skill) throw new Error('Unknown competency');
-  const existing = observationsFor(state, id).length;
-  if (existing >= skill.required || existing >= skill.samples.length) return state;
-  const sample = skill.samples[existing];
-  if (!sample) return state;
-  const observation = { id: `sample-${id}-${existing + 1}`, skill: id, text: sample, source: 'Simulated observed practice', observer: 'Morgan · senior leading hand', phase: 'New practice · fictional' };
-  return { ...state, observations: [...state.observations, observation], decision: null, events: [...state.events, { type: 'observation', detail: skill.name }] };
+  if (state.mentoring < 2) throw new Error('Record the next fictional mentoring session before simulated independent practice.');
+  const existingSamples = observationsFor(state, id).filter(o => o.id.startsWith('sample-')).length;
+  if (existingSamples >= skill.samples.length) return state;
+  const observation = {
+    id: `sample-${id}-${existingSamples + 1}`, skill: id,
+    text: skill.samples[existingSamples], source: 'Simulated independent work observation',
+    observer: 'Morgan · senior leading hand', phase: 'New practice · fictional',
+    practice: 'independent', assessment: 'unreviewed'
+  };
+  const reviews = { ...state.reviews };
+  delete reviews[id];
+  return { ...state, observations: [...state.observations, observation], reviews, decision: null,
+    events: [...state.events, { type: 'observation', detail: `${skill.name} · independent practice, not yet assessed` }] };
+}
+/** In this demo, only the fictional GM may record a scoped evidence review. No real access control. */
+export function reviewEvidence(state, id, reviewer = 'casey') {
+  const skill = skillById(id);
+  if (!skill) throw new Error('Unknown competency');
+  if (reviewer !== 'casey') throw new Error('Only the fictional authorised GM can record this evidence review.');
+  const observations = observationsFor(state, id);
+  const independent = observations.filter(o => o.practice === 'independent');
+  if (independent.length < skill.required) throw new Error('Insufficient independent work evidence for this illustrative review.');
+  if (state.reviews[id]) return state;
+  return { ...state, reviews: { ...state.reviews, [id]: true }, decision: null,
+    events: [...state.events, { type: 'review', detail: `${skill.name} · fictional GM evidence review` }] };
 }
 export function rescheduleTraining(state) {
   if (state.training !== 'delayed') return state;
-  return { ...state, training: 'rescheduled', events: [...state.events, { type: 'support', detail: 'External instruction rescheduled by manager' }] };
+  return { ...state, training: 'rescheduled', decision: null, events: [...state.events, { type: 'support', detail: 'External instruction rescheduled by manager' }] };
 }
 export function recordMentoring(state) {
   if (state.mentoring >= 2) return state;
-  return { ...state, mentoring: state.mentoring + 1, events: [...state.events, { type: 'support', detail: 'Mentoring session completed' }] };
+  return { ...state, mentoring: state.mentoring + 1, decision: null, events: [...state.events, { type: 'support', detail: 'Mentoring session completed' }] };
 }
 export function canAssignScopedPlanning(state) {
   return state.path === 'site' && skillStatus(state, 'planning') === 'supported';
@@ -64,7 +87,7 @@ export function canAssignScopedPlanning(state) {
 export function decisionChoices(state) {
   return [
     { id: 'coach', title: 'Continue supported practice', description: 'Keep coaching in place and reassess the evidence.', available: true },
-    { id: 'scope', title: 'Assign a bounded planning task', description: 'GM approves one mentored two-trade look-ahead; no site-supervision authority.', available: canAssignScopedPlanning(state), reason: state.path !== 'site' ? 'Available on the site-coordination pathway.' : 'Needs two relevant planning observations before the GM can consider this task.' },
+    { id: 'scope', title: 'Assign a bounded planning task', description: 'GM approves one mentored two-trade look-ahead; no site-supervision authority.', available: canAssignScopedPlanning(state), reason: state.path !== 'site' ? 'Available on the site-coordination pathway.' : 'Needs two independent planning demonstrations and a fictional GM evidence review; coached notes alone are insufficient.' },
     { id: 'redirect', title: 'Explore a different contribution', description: 'Respect the employee’s preference and compare technical or cross-functional routes.', available: true },
     { id: 'appoint', title: 'Appoint independent site supervisor', description: 'Full authority over the site.', available: false, reason: 'Blocked: safety/authority and people-leadership requirements are not verified. Training or tenure does not override this.' }
   ];
@@ -95,10 +118,11 @@ export function decide(state, decisionId) {
     summary, next, impact,
     known: ['Practical trade quality supported by example observations.', 'Commercial awareness supported by example observations.'],
     unknown: SKILLS.filter(s => skillStatus(state, s.id) === 'unknown').map(s => s.name),
+    needsReview: SKILLS.filter(s => skillStatus(state, s.id) === 'review').map(s => s.name),
     restricted: 'No independent site-supervision authority established.',
     employeeVoice: state.employeeFeedback,
     managerSupport: { training: state.training, completedMentoringSessions: state.mentoring },
-    evidence: SKILLS.map(s => ({ skill: s.name, status: skillStatus(state, s.id), observations: observationsFor(state, s.id).length })),
+    evidence: SKILLS.map(s => ({ skill: s.name, status: skillStatus(state, s.id), observations: observationsFor(state, s.id).length, independent: observationsFor(state, s.id).filter(o => o.practice === 'independent').length, managerReviewed: Boolean(state.reviews[s.id]) })),
     synthetic: true
   };
   return { ...state, step: 5, decision: record, events: [...state.events, { type: 'decision', detail: option.title }] };
@@ -116,6 +140,8 @@ export function memoText(record) {
     `Rationale: ${record.summary}`,
     `Employee perspective: ${record.employeeVoice}`,
     `Unknown evidence: ${record.unknown.join(', ') || 'None recorded'}`,
+    `Evidence needing review: ${record.needsReview.join(', ') || 'None recorded'}`,
+    'Assessment method: coached notes do not establish independent competence; new observations require fictional GM review.',
     `Authority limit: ${record.restricted}`,
     `Manager support: ${record.managerSupport.completedMentoringSessions}/2 mentoring sessions; external training ${record.managerSupport.training}`,
     `Workforce consequence: ${record.impact}`,

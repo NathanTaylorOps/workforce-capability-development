@@ -2,7 +2,7 @@
 
 **A practical, skills-first demonstration of people development, managerial judgment and organisational capability.**
 
-**Status: Functional prototype (v0.2 candidate), published v0.1 live; richer evidence workflow proposed in the current pull request.** The first fictional leadership scenario is implemented and GitHub Pages reports a successful deployment. This is **not** a complete HR platform or a production-ready tool. The hosted site's complete browser functionality has not yet been independently smoke-tested after deployment.
+**Status: Functional prototype (v0.2).** The latest source implements a richer evidence workflow. The [GitHub Pages site](https://nathantaylorops.github.io/workforce-capability-development/) deploys from `main` after successful publishing checks; it may temporarily run an earlier version while a feature pull request is open or deployment is underway. The first fictional leadership scenario is implemented and GitHub Pages reports a successful deployment. This is **not** a complete HR platform or a production-ready tool. The hosted site's complete browser functionality has not yet been independently smoke-tested after deployment.
 
 ## Experience the prototype
 
@@ -17,7 +17,7 @@
 5. Make an evidence-based management decision. **Independent site-supervisor appointment remains blocked** where the evidence and authority are insufficient.
 6. Review the operational consequences and copy or download a fictional decision record.
 
-This is a **single synthetic scenario**, with deliberately simplified criteria. Its observations, characters, budget/time assumptions and outcomes are invented; nothing represents individual real-life employee records or measured business performance. **The v0.1 two-observation count** is a deliberately simplistic teaching rule, not a universal assessment or legal standard. In the proposed v0.2 change, coached and independent observations are distinct, and newly demonstrated competence requires a separate fictional GM review.
+This is a **single synthetic scenario**, with deliberately simplified criteria. Its observations, characters, budget/time assumptions and outcomes are invented; nothing represents individual real-life employee records or measured business performance. **The fictional two-independent-observation requirement** is an intentionally simplified teaching rule, not a universal assessment or legal standard. Coached and independent observations are distinct; new independent evidence requires a separate simulated GM review before a narrowly scoped planning responsibility can be considered.
 
 The app does not use a backend, collect personal data, persist scenario state or require accounts. Reset returns to the initial scenario.
 
@@ -87,13 +87,13 @@ It is part of [NathanTaylorOps](https://github.com/NathanTaylorOps)'s operations
 | Repository foundation | Done |
 | Initial discovery, requirements and UX documentation | Drafted and merged; research ongoing |
 | First static leadership scenario | Merged into `main` in [PR #5](https://github.com/NathanTaylorOps/workforce-capability-development/pull/5) |
-| Scenario-rule tests | **11/11 passed** on currently deployed v0.1 [main-branch CI](https://github.com/NathanTaylorOps/workforce-capability-development/actions/runs/38077504506); v0.2 candidate has **15 local unit tests passing**, with new PR CI pending |
+| Scenario-rule tests | v0.2 has **15 local unit tests passing**; see the latest [Actions checks](https://github.com/NathanTaylorOps/workforce-capability-development/actions/workflows/ci.yml) for branch and deployed `main` verification |
 | Browser interaction testing | Local scripted desktop/mobile flow performed; report below |
 | Public GitHub Pages deployment | GitHub Actions **successful**, [published URL](https://nathantaylorops.github.io/workforce-capability-development/); live browser smoke test still outstanding |
 | Independent reviewer / accessibility and release validation | Not yet completed |
 
 **Maintainer:** [NathanTaylorOps](https://github.com/NathanTaylorOps). No external contributors or independent reviews are claimed.
 
-## Proposed v0.2 evidence review (not live until merged)
+## Evidence review in v0.2
 
-The v0.2 candidate requires a completed fictional mentoring session before simulated independent practice can be recorded. Coached records and unreviewed observations do **not** prove independent competence. After two pre-authored independent planning tasks, the visitor must explicitly perform a fictional GM evidence review before the bounded planning assignment can be considered. Independent site-supervision authority remains blocked. Manager support changes invalidate previously generated decisions so exported records cannot silently become stale. All evidence, checks and reviewer roles are invented teaching fixtures; the demo does not authenticate reviewers or certify workers.
+The v0.2 workflow requires a completed fictional mentoring session before simulated independent practice can be recorded. Coached records and unreviewed observations do **not** prove independent competence. After two pre-authored independent planning tasks, the visitor must explicitly perform a fictional GM evidence review before the bounded planning assignment can be considered. Independent site-supervision authority remains blocked. Manager support changes invalidate previously generated decisions so exported records cannot silently become stale. All evidence, checks and reviewer roles are invented teaching fixtures; the demo does not authenticate reviewers or certify workers.

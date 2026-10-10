@@ -1,5 +1,5 @@
 /** All organisations, characters, observations, costs and outcomes below are fictional. */
-export const FIXTURE_VERSION = '2026-10-demo-2';
+export const FIXTURE_VERSION = '2026-10-demo-3';
 export const SCENARIO_NAME = 'Hawthorn Projects';
 export const STEPS = [
   { id: 'brief', title: 'The situation', short: 'Brief' },
@@ -31,6 +31,23 @@ export const BASE_OBSERVATIONS = [
   { id: 'm1', skill: 'commercial', text: 'Flagged rework and time implications of a late variation.', source: 'Work sample', observer: 'Casey · GM', phase: 'Earlier work', practice: 'independent', assessment: 'verified' },
   { id: 'm2', skill: 'commercial', text: 'Reviewed quantity changes with the estimator.', source: 'Cross-functional observation', observer: 'Estimating mentor', phase: 'Earlier work', practice: 'independent', assessment: 'verified' }
 ];
+/** Fictional, qualitative weekly-development review: no employee ranking or real KPIs. */
+export const WEEKLY_CHECKIN = {
+  period: 'Illustrative week 2',
+  manager: 'Casey · GM',
+  employee: 'Alex · field operative',
+  observations: [
+    { label: 'Quality / rework', value: 'Two accepted handovers', context: 'A useful quality signal, not proof of supervisory readiness or causation.' },
+    { label: 'Work planning', value: 'One coached look-ahead', context: 'Mentor-supported scheduling; independent planning is still under assessment.' }
+  ],
+  mentorFeedback: 'Morgan observed good trade preparation and early identification of a material dependency. Alex still needs coached experience coordinating handovers.',
+  employeePerspective: 'I want to practise running a handover with Morgan nearby. I am also interested in learning how estimating works.',
+  options: [
+    { id: 'handover', title: 'Agree a coached handover', action: 'Morgan and Alex will run a supervised two-trade handover.', owner: 'Casey to protect mentor time; Morgan to observe.', milestone: 'Observe instructions, escalation and next-day follow-through.' },
+    { id: 'training', title: 'Repair the training commitment', action: 'Casey will rebook the company-funded external instruction.', owner: 'Casey to confirm the new training arrangement.', milestone: 'Review the instruction plan and later practical application.' },
+    { id: 'explore', title: 'Explore estimating alongside site work', action: 'Alex will observe an estimating review before committing to a pathway change.', owner: 'Casey to arrange a short estimating-team introduction.', milestone: 'Ask Alex what was learned and whether this direction fits.' }
+  ]
+};
 export const SCENARIO_ASSUMPTIONS = [
   'Two fictional projects require coordination this week.',
   'The senior leading hand has three hours available for mentoring.',

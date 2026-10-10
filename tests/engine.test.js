@@ -312,6 +312,7 @@ test('invalid workforce options never become available or fabricate approved cov
   assert.equal(decisionChoices(state).find(x => x.id === 'appoint').available, false);
 });
 
+
 test('succession planning starts unknown and never establishes a certified replacement', () => {
   const s = initialState();
   const impact = successionImpact(s);

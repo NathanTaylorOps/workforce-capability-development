@@ -2,9 +2,11 @@
 
 **A practical, skills-first demonstration of people development, managerial judgment and organisational capability.**
 
-**Status: Functional prototype (v0.1), under review.** The first fictional leadership scenario is implemented; this is **not** a complete HR platform or a production-ready tool. GitHub Pages deployment is configured but may require the repository's Pages source to be set to **GitHub Actions** after merge. Do not treat the deployment as live until verified.
+**Status: Functional prototype (v0.1), published for review.** The first fictional leadership scenario is implemented and GitHub Pages reports a successful deployment. This is **not** a complete HR platform or a production-ready tool. The hosted site's complete browser functionality has not yet been independently smoke-tested after deployment.
 
 ## Experience the prototype
+
+**[Open the live Leadership Studio](https://nathantaylorops.github.io/workforce-capability-development/)** — public, synthetic-data demonstration hosted on GitHub Pages. [Deployment workflow: successful on second attempt](https://github.com/NathanTaylorOps/workforce-capability-development/actions/runs/38077504496).
 
 **Leadership Studio — Develop a future leader.** Act as General Manager of fictional **Hawthorn Projects** and make a development decision about fictional field employee Alex. The guided six-stage experience lets you:
 
@@ -35,7 +37,7 @@ Tests require Node.js 20 or later; no `npm install` step is needed:
 npm run check
 ```
 
-`npm test` runs the deterministic scenario-rule tests. GitHub Actions runs the same checks for pull requests and `main`, and a separate workflow is configured to publish a curated set of static app assets to GitHub Pages after merge. **Deployment is not confirmed until Pages is enabled and the workflow succeeds.**
+`npm test` runs the deterministic scenario-rule tests. GitHub Actions runs the same checks for pull requests and `main`, and a separate workflow publishes the necessary static assets to GitHub Pages. The first successful deployment is verified from the [publishing workflow](https://github.com/NathanTaylorOps/workforce-capability-development/actions/runs/38077504496). The deployed JavaScript module graph and complete in-browser journey still require post-deployment smoke testing.
 
 ## Why this exists
 
@@ -84,10 +86,10 @@ It is part of [NathanTaylorOps](https://github.com/NathanTaylorOps)'s operations
 | --- | --- |
 | Repository foundation | Done |
 | Initial discovery, requirements and UX documentation | Drafted and merged; research ongoing |
-| First static leadership scenario | Implemented on prototype branch; awaiting owner review/merge |
-| Scenario-rule tests | Run locally; CI results pending |
+| First static leadership scenario | Merged into `main` in [PR #5](https://github.com/NathanTaylorOps/workforce-capability-development/pull/5) |
+| Scenario-rule tests | **11/11 passed** in the successful [main-branch CI run](https://github.com/NathanTaylorOps/workforce-capability-development/actions/runs/38077504506) |
 | Browser interaction testing | Local scripted desktop/mobile flow performed; report below |
-| Public GitHub Pages deployment | Configured; **not yet verified live** |
+| Public GitHub Pages deployment | GitHub Actions **successful**, [published URL](https://nathantaylorops.github.io/workforce-capability-development/); live browser smoke test still outstanding |
 | Independent reviewer / accessibility and release validation | Not yet completed |
 
 **Maintainer:** [NathanTaylorOps](https://github.com/NathanTaylorOps). No external contributors or independent reviews are claimed.

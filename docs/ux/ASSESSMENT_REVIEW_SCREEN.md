@@ -23,7 +23,7 @@ The screen combines objective task evidence and documented milestones with coach
 │ Workforce Capability                     FICTIONAL DEMO   [Reset] [Help]        │
 │                                                                                 │
 │ Review readiness                                                            3/6│
-│ Alex Morgan • Field operative • Wants to explore site coordination             │
+│ Alex • Field operative • Wants to explore site coordination             │
 │ [View existing skills]  [Technical pathway]  [Cross-functional pathway]         │
 ├───────────────────────────────────────────────┬─────────────────────────────────┤
 │ EXISTING CAPABILITY                           │ DEVELOPMENT & SUPPORT           │

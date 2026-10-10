@@ -38,6 +38,41 @@ A familiar route might be `labourer → skilled tradesperson → leading hand �
 | **Decide** | Authorised manager weighs role requirements, workforce coverage and consent | Explicit next action and recorded rationale | Silently granting site authority or job title |
 | **Review** | Employee and manager revisit practice, support, quality and outcomes | Revised plan / next review / status | Assuming one sign-off proves lasting transfer |
 
+## 3A. Hybrid assessment approach — formal evidence plus management judgment
+
+For this product, adopt a **hybrid** method rather than choosing between bureaucratic checkbox assessment and entirely informal managerial opinion.
+
+**Structured evidence:** Job-specific competencies, observed work outputs, agreed KPIs, documented milestones, required training and bounded authority. The role requirements provide consistency; evidence must still be interpreted in context.
+
+**Continuous managerial input:** Regular employee conversations, mentor and leading-hand observations, judgement about independent problem-solving and teamwork, explanations of setbacks, and review of management-provided support. These inputs provide context and help plan development, **not a shortcut around missing evidence or legal prerequisites**.
+
+**Decision:** A human manager considers both streams alongside the employee's aspirations and operational constraints, identifies conflicting or incomplete evidence, documents the rationale and agrees on the next action. Appropriate assessors and delegated decision-makers have separate responsibilities.
+
+### Evidence hierarchy for the *proposed* fictional workflow
+
+| Information | Example | How it is used |
+| --- | --- | --- |
+| Observable work | Completed inspection, plan, quality records, handover, safely handled task | Primary evidence against explicit role requirements |
+| Documented milestones | Supervised task completed; independent task repeated under defined conditions | Demonstrates progression over time, where criteria fit the task |
+| Leading-hand or mentor feedback | Dated observation of work quality, decision-making or coaching need | Adds context and helps identify practice needs; verifier scope matters |
+| Weekly management review | Employee input, stated goals, open commitments, obstacles and follow-up | Informs development support, readiness discussions and fair process |
+| KPI and operational trend | Job-specific quality/rework, completion timeliness, planning reliability | Supporting signal only; causation and context must be examined |
+| Professional judgment | Manager's explanation of strengths, limitations, uncertainty and options | Human assessment rationale; cannot replace statutory licensing or task evidence |
+
+**Conflict rule:** If direct evidence, KPI trends and mentor feedback disagree, the system surfaces that disagreement and offers reassessment or further observation. It must not silently compute an overall employee-worth or potential score.
+
+**No invented historical detail:** The actual historical balance of formal sign-offs, weekly notes, KPI reviews and subjective judgment remains to be clarified. This section specifies an improved product method, not an assertion that every step or record was previously documented.
+
+## 3B. Decision and review rhythm
+
+1. **At the start:** Agree on the employee's preferred direction; record existing capabilities and what the destination requires.
+2. **During work:** Mentor observes real tasks; manager makes resources and opportunities available.
+3. **At an agreed review:** Employee and manager examine work evidence, KPIs, feedback, support commitments and any disagreements.
+4. **At a readiness decision:** Appropriate human decision-maker documents what is supported, uncertain or restricted, and authorises only permissible scoped next steps.
+5. **After transition:** Check quality, safety, confidence, supervision needs and workforce coverage; alter the plan if evidence changes.
+
+The review interval should be configurable; weekly is an illustrative cadence, not an automatic compliance requirement.
+
 ## 4. Worked fictional example — field employee considers site supervision
 
 **Everything in this example is synthetic and illustrative.** No named historical employee, former employer or real personnel record is represented.

@@ -1,6 +1,6 @@
 # Prototype verification log
 
-**Scope:** First interactive fictional leadership journey on the proposed prototype branch. Verification is a local self-check, **not independent review or production certification**.
+**Scope:** First interactive fictional leadership journey, now merged into `main` and deployed through GitHub Pages. Verification includes local self-checks and GitHub Actions evidence, **not independent review or production certification**.
 
 ## Automated scenario rules
 
@@ -17,14 +17,21 @@
 - Mobile: 390 × 844; brief → path selection. **Passed without JavaScript runtime errors or horizontal overflow.**
 - Screenshots were reviewed locally; not evidence of an independent UX or WCAG audit.
 
-## Planned CI and deployment checks (not yet passed)
+## GitHub Actions and publishing verification
 
-- Pull-request CI in GitHub Actions.
-- GitHub Pages deployment in repository configured for GitHub Actions.
-- Load the actual deployed module graph using HTTPS.
-- Keyboard traversal, zoom/reflow, screen reader, colour contrast and reduced-motion accessibility testing.
-- Full browser automation across alternative decisions and responsive widths.
-- External user/recruiter validation of comprehension and value.
+- [PR #5](https://github.com/NathanTaylorOps/workforce-capability-development/pull/5) was merged into `main` at commit `2febb043b6bd13ce8cd959ef1d7379dcdc5a0564`.
+- [Main-branch application CI](https://github.com/NathanTaylorOps/workforce-capability-development/actions/runs/38077504506) **passed**; it runs the same scenario/syntax checks described above.
+- The [GitHub Pages publishing run](https://github.com/NathanTaylorOps/workforce-capability-development/actions/runs/38077504496) initially failed at `actions/configure-pages@v5` because the Pages site had not been enabled. The repository owner enabled **Settings → Pages → Build and deployment → GitHub Actions**. The failed deployment was re-run, and **attempt 2 passed**: configuration, site upload and Pages deployment all completed successfully.
+- The deployment job's reported environment URL is **https://nathantaylorops.github.io/workforce-capability-development/**. This confirms the publication workflow succeeded; it does **not** independently verify that a browser can load every script or complete all scenario steps from the live URL.
+
+## Outstanding live-site and release checks
+
+- Open the live URL via HTTPS and confirm stylesheet, JavaScript modules, event handlers and all six steps load correctly. This independent live-site smoke test could not be completed from the verification environment.
+- Keyboard traversal, zoom/reflow, screen-reader semantics, colour contrast and reduced-motion accessibility testing.
+- Full browser automation across alternative decisions and responsive widths using the deployed site rather than in-memory script substitution.
+- External user/recruiter validation of clarity, fairness and value.
+
+**Reviewer smoke-test checklist:** Open the published URL; verify it renders a fictional company and employee; choose technical and cross-functional paths before returning to site coordination; record a mentor/support action; view competency evidence; attempt a management decision and confirm that unsatisfied independent site-supervisor authority remains blocked; open the outcome memo; reset the journey. Record any failure with browser, screen size, step and message.
 
 ## Open product gaps
 

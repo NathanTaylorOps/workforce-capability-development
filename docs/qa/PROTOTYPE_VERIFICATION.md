@@ -37,9 +37,9 @@
 
 The current prototype supports **one** fictional scenario with guided actions and an exportable management memo. It does not implement live workforce scheduling, genuine licence/assessor validation, actual employee assessments, real employee records, multiple-stakeholder permissions, full simulated branching comparison, or legal decision support. The current evidence count rule is intentionally simplified and must not be generalised to any real occupation.
 
-## Proposed v0.2 iteration verification (feature branch; not deployed yet)
+## v0.2 iteration verification (performed locally before pull-request merge)
 
 - Local Node.js 22 `npm run check` passed **15/15** scenario-rule tests, including coaching vs independent evidence, reviewer permission simulation, explicit review before bounded delegation, stale decision invalidation, deterministic replay and existing alternative career directions.
 - Desktop (1360×900) and mobile (390×844) guided browser flow completed, including two fictional independent planning observations, GM evidence review, bounded planning decision, blocked independent supervisor appointment, and no horizontal overflow or JavaScript runtime errors.
 - Browser smoke used **in-memory concatenation** of the same JS modules because the test container blocks local URL navigation. This does **not** verify hosted ES-module loading or constitute an independent production accessibility test.
-- New workflow remains hypothetical and is **not** evidence of formal historic sign-off practices, an accredited competency assessment or real identity/authority validation.
+- Workflow rules are implemented in the prototype but remain a **hypothetical educational simulation**. They are not evidence of formal historical sign-off practices, accredited competency assessment or real identity/authority validation.

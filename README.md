@@ -1,51 +1,93 @@
 # Workforce Capability & Development
 
-**A practical framework for developing people, building management capability and strengthening organisational performance.**
+**A practical, skills-first demonstration of people development, managerial judgment and organisational capability.**
 
-**Project status: Discovery and specification.** The application has not been built. Functionality described below is planned, not available for use.
+**Status: Functional prototype (v0.1), under review.** The first fictional leadership scenario is implemented; this is **not** a complete HR platform or a production-ready tool. GitHub Pages deployment is configured but may require the repository's Pages source to be set to **GitHub Actions** after merge. Do not treat the deployment as live until verified.
 
-## Purpose
+## Experience the prototype
 
-This project explores how an operations leader can translate work requirements into demonstrated capability, practical coaching, responsibly delegated authority, succession readiness and stronger organisational performance.
+**Leadership Studio — Develop a future leader.** Act as General Manager of fictional **Hawthorn Projects** and make a development decision about fictional field employee Alex. The guided six-stage experience lets you:
 
-The primary objective is to demonstrate people leadership and organisational-development judgment in a professional operations/general-management portfolio. It is not intended to replace an HRIS, learning-management system or qualified HR advice.
+1. Understand the employee, the organisation and available mentor capacity.
+2. Compare **site coordination, technical specialisation and estimating/scheduling** pathways without a fixed promotion ladder.
+3. Record fictional mentor follow-through and correct a delayed employer-funded training commitment.
+4. Inspect competency evidence and add pre-authored, fictional work observations.
+5. Make an evidence-based management decision. **Independent site-supervisor appointment remains blocked** where the evidence and authority are insufficient.
+6. Review the operational consequences and copy or download a fictional decision record.
 
-## Planned management journeys
+This is a **single synthetic scenario**, with deliberately simplified criteria. Its observations, characters, budget/time assumptions and outcomes are invented; nothing represents individual real-life employee records or measured business performance. **Two observations** is an illustrative rule for the fictional demonstration, not a universal assessment or legal standard.
 
-1. **Develop a future leader.** Identify aspirations and requirements, support coached practice, establish competence separately from authority, delegate gradually, respond to setbacks and review progress.
-2. **Handle a difficult people decision.** Examine work design, expectations, fairness, employee voice, support, safety and accountable management action.
-3. **Build organisational depth.** Review manager capacity, succession, critical-role coverage and workforce investment in a growing organisation.
+The app does not use a backend, collect personal data, persist scenario state or require accounts. Reset returns to the initial scenario.
 
-Shorter examples may cover estimator coaching, technician training and speaking up about a quality concern.
+### Run locally
 
-Every organisation, worker and incident in the interactive demo will be fictional. Genuine work experience, where appropriate for publication, will be described separately with clear provenance and confidentiality checks.
+There is **no installation or dependency download** required to view the app. Start any static server from the repository root:
 
-## Scope and design principles
+```bash
+python -m http.server 8080
+```
 
-- Development should centre on observed work, practical learning, employee agency, coaching, fair accountability and manager follow-through.
-- **Training completion, demonstrated competence, licensing, decision authority and availability are different things.**
-- The system will explain the relevant evidence, unknowns, rules and management options; it will not autonomously decide who deserves promotion, dismissal or discipline.
-- The application will avoid real employee records, performance surveillance, unsupported culture scoring and speculative claims of financial return.
-- We prioritise a small number of convincing end-to-end experiences over an extensive but shallow feature catalogue.
+Then open `http://localhost:8080/` in a browser. Open directly as a `file://` document only if your browser supports ES modules from local files; using a local server is recommended.
+
+Tests require Node.js 20 or later; no `npm install` step is needed:
+
+```bash
+npm run check
+```
+
+`npm test` runs the deterministic scenario-rule tests. GitHub Actions runs the same checks for pull requests and `main`, and a separate workflow is configured to publish a curated set of static app assets to GitHub Pages after merge. **Deployment is not confirmed until Pages is enabled and the workflow succeeds.**
+
+## Why this exists
+
+An operations leader should not assume that tenure or job title defines potential, that all capable people want to supervise, or that passing training automatically confers competence, a licence or permission to act. Managers must also provide coaching opportunities, follow up on their own commitments and assess the workforce implications of changing a person's duties.
+
+This repository explores **work requirements → existing skills → employee-selected direction → coached practice → observed evidence → human judgment → scoped authority → organisational follow-through**.
+
+It is part of [NathanTaylorOps](https://github.com/NathanTaylorOps)'s operations and management portfolio. The scenario is an explanatory fictional product, **not evidence that the specific situations depicted actually occurred**. Any historical leadership case study must be separately sourced, anonymised where necessary and approved for public release.
+
+## Scope and limitations
+
+- This prototype simulates one skills-first development scenario only. Difficult conversations, director-level succession, multiple enterprises and comprehensive workforce modelling remain future work.
+- The current review uses limited pre-authored synthetic observations and a simplified evidence threshold. No real training, licensing, HR compliance or assessor validation occurs.
+- Role suitability, hiring, promotion, dismissal, discipline and safety-critical work authority **must not** be decided automatically. A real organisation requires qualified human assessment and applicable legal/industry checks.
+- Training completed, competence evidenced, credentials held, authority delegated and worker availability are distinct facts.
+- No employee ranking, inferred personality, employee-worth score, automated surveillance, real HR records or invented financial ROI.
+
+## Repository structure
+
+| Path | Purpose |
+| --- | --- |
+| [`index.html`](index.html), [`styles.css`](styles.css) | Responsive accessible-first web interface (no framework required) |
+| [`src/data.js`](src/data.js) | Versioned fictional scenario, role paths and evidence fixtures |
+| [`src/engine.js`](src/engine.js) | Deterministic, pure decision and assessment rules |
+| [`src/app.js`](src/app.js) | Guided browser interaction and local-only rendering |
+| [`tests/engine.test.js`](tests/engine.test.js) | Node.js scenario unit tests |
+| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | Pull request and main-branch validation |
+| [`.github/workflows/pages.yml`](.github/workflows/pages.yml) | GitHub Pages publishing workflow |
+| [`docs/`](docs/) | Research, product requirements, evidence boundaries and UX specifications |
 
 ## Project documents
 
-- [Project charter](docs/PROJECT_CHARTER.md) — goals, audiences, constraints and outcomes.
-- [Discovery and release roadmap](docs/ROADMAP.md) — evidence-led stage gates and release sequence.
-- [Working agreement](docs/WORKING_AGREEMENT.md) — solo-maintainer development and verification process.
-- [Public data and evidence policy](docs/DATA_AND_EVIDENCE.md) — historical, reconstructed and synthetic content boundaries.
+- [Project charter](docs/PROJECT_CHARTER.md) — purpose and governance.
+- [Discovery and release roadmap](docs/ROADMAP.md) — future phases and release gates.
+- [Working agreement](docs/WORKING_AGREEMENT.md) — maintainer practices and verification expectations.
+- [Data and evidence policy](docs/DATA_AND_EVIDENCE.md) — public data and historical fact boundaries.
+- [Career pathways requirements](docs/product/CAREER_PATHWAYS_REQUIREMENTS.md) — initial functional requirements.
+- [Competence and progression method](docs/COMPETENCE_AND_PROGRESSION_METHOD.md) — research-informed assessment proposal.
+- [Assessment screen spec](docs/ux/ASSESSMENT_REVIEW_SCREEN.md) — reviewable UX design, now partially implemented.
+- [Architecture record](docs/architecture/ADR-0001-STATIC_PROTOTYPE.md) — why the first build is dependency-free.
+- [Prototype verification](docs/qa/PROTOTYPE_VERIFICATION.md) — checks run and known gaps.
 
-## Progress
+## Current progress
 
-| Stage | Status |
+| Stage | Verified state |
 | --- | --- |
-| Project establishment | In progress |
-| Management evidence and user research | Not completed |
-| Leadership scenarios and requirements | Not completed |
-| UX and architecture | Not completed |
-| Application implementation | Not started |
-| Testing and publication | Not started |
+| Repository foundation | Done |
+| Initial discovery, requirements and UX documentation | Drafted and merged; research ongoing |
+| First static leadership scenario | Implemented on prototype branch; awaiting owner review/merge |
+| Scenario-rule tests | Run locally; CI results pending |
+| Browser interaction testing | Local scripted desktop/mobile flow performed; report below |
+| Public GitHub Pages deployment | Configured; **not yet verified live** |
+| Independent reviewer / accessibility and release validation | Not yet completed |
 
-This repository is being developed iteratively. The README will be updated only when implementation or evidence changes have been verified.
-
-**Maintainer:** [NathanTaylorOps](https://github.com/NathanTaylorOps).
+**Maintainer:** [NathanTaylorOps](https://github.com/NathanTaylorOps). No external contributors or independent reviews are claimed.

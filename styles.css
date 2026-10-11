@@ -88,3 +88,16 @@
 .absence-limit{padding:14px 16px;border-radius:12px;background:#fff3e4;color:#684618;margin-top:14px;border:1px solid #eecf9c}
 .absence-outcome{margin-top:18px;padding:16px;border:1px solid var(--border);border-radius:12px;background:#f9fbf9}
 @media(max-width:720px){.absence-list{grid-template-columns:1fr}.absence-option{flex:1 1 100%;width:100%}.absence-summary>div{padding:12px 8px}.absence-summary span{font-size:.7rem}}
+/* Issue #14 · bounded prospective support review */
+.cover-review{margin-top:18px;padding:20px;border:1px solid #cadcd6;border-radius:14px;background:#f9fcfa;min-width:0}
+.cover-review h4{font-size:1.08rem;margin:8px 0}.cover-review p{font-size:.85rem;line-height:1.6;overflow-wrap:anywhere}
+.cover-choice{border:0;padding:0;margin:16px 0}.cover-candidates{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.cover-candidate{border:1px solid #d6e1de;background:#fff;border-radius:11px;color:var(--ink);text-align:left;min-height:44px;padding:10px 14px;font-weight:600}
+.cover-candidate.is-selected{border-color:var(--teal);background:var(--teal-pale);box-shadow:inset 0 0 0 1px var(--teal)}
+.cover-result{border:1px solid #e8cead;background:#fffaf3;border-radius:12px;padding:16px;margin-top:12px}.cover-result>strong{color:#744e22}
+.cover-factors{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}
+.cover-factors>div{border:1px solid #e8dfd2;background:#fff;border-radius:11px;padding:14px;min-width:0}
+.cover-factors strong{display:block;margin:6px 0;font-size:.85rem}.cover-factors p{font-size:.78rem;margin:4px 0 0}
+.cover-caution{border-top:1px solid #e8cead;padding-top:12px;color:#744e22;font-weight:600}
+.absence-task .btn{margin-top:12px;white-space:normal;text-align:left}
+@media(max-width:700px){.cover-review{padding:14px}.cover-factors{grid-template-columns:1fr}.cover-candidate{flex:1 1 100%}}

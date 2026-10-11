@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { absenceImpact, chooseAbsenceEvent, initialState, hearEmployee, recordWeeklyReview, skillStatus, chooseCoveragePlan, confirmCoveragePlan, chooseSuccessionPlan, confirmSuccessionPlan, successionImpact, chooseOrganisationPlan, confirmOrganisationPlan, organisationImpact, workforceImpact, choosePath, addSampleObservation, reviewEvidence, decisionChoices, decide, rescheduleTraining, recordMentoring, memoText, supportSummary, selectSkill, updateStep, observationsFor } from '../src/engine.js';
+import { coverSuitability, chooseCoverTask, chooseCoverCandidate, absenceImpact, chooseAbsenceEvent, initialState, hearEmployee, recordWeeklyReview, skillStatus, chooseCoveragePlan, confirmCoveragePlan, chooseSuccessionPlan, confirmSuccessionPlan, successionImpact, chooseOrganisationPlan, confirmOrganisationPlan, organisationImpact, workforceImpact, choosePath, addSampleObservation, reviewEvidence, decisionChoices, decide, rescheduleTraining, recordMentoring, memoText, supportSummary, selectSkill, updateStep, observationsFor } from '../src/engine.js';
 
 const withMentor = state => recordMentoring(state);
 const withWeeklyReview = state => recordWeeklyReview(hearEmployee(state), 'handover');
@@ -591,4 +591,55 @@ test('organisational view reflects unavailable owner rather than claiming covere
   assert.match(reese.roles.find(x => x.id === 'estimating').status, /Unavailable/);
   assert.ok(casey.risks.some(x => x.includes('Hypothetical absence')));
   assert.equal(casey.qualifiedSuccessor, false);
+});
+test('only an affected duty can be inspected and choices are task-scoped',()=>{
+ assert.throws(()=>chooseCoverTask(initialState(),'estimates'),/Only responsibilities exposed/);
+ const s=chooseCoverTask(chooseAbsenceEvent(initialState(),'casey'),'trade-sequence');
+ assert.throws(()=>chooseCoverCandidate(s,'external'),/Unknown or inapplicable/);
+ assert.equal(coverSuitability(s).selected,null);
+});
+test('a named prospect is not equivalent to authorised cover',()=>{
+ const s=chooseCoverCandidate(chooseCoverTask(chooseAbsenceEvent(initialState(),'casey'),'site-approval'),'morgan');
+ assert.equal(coverSuitability(s).authority.status,'Not established');
+ assert.equal(coverSuitability(s).capacity.confirmedTaskHours,0);
+ assert.equal(coverSuitability(s).canCover,false);
+ assert.equal(absenceImpact(s).uncovered,1);
+ assert.equal(decisionChoices(s).filter(x=>x.available).length,0);
+});
+test('spare mentor time cannot be double counted as available field coverage',()=>{
+ const s=chooseCoverCandidate(chooseCoverTask(chooseAbsenceEvent(initialState(),'casey'),'trade-sequence'),'morgan');
+ assert.equal(coverSuitability(s).capacity.unallocatedMentorHours,1);
+ const allocated={...s,organisation:{option:'jordan',confirmed:true}};
+ assert.equal(coverSuitability(allocated).capacity.unallocatedMentorHours,0);
+ assert.equal(coverSuitability(allocated).capacity.confirmedTaskHours,0);
+});
+test('technical experience and lateral pathways never imply estimating permission',()=>{
+ const s=chooseCoverCandidate(chooseCoverTask(chooseAbsenceEvent(initialState(),'reese'),'estimates'),'alex');
+ assert.equal(coverSuitability(s).canCover,false);
+ const alt=choosePath(s,'operations');
+ assert.match(coverSuitability(alt).preference,/cross-functional learning/);
+ assert.equal(absenceImpact(alt).uncovered,2);
+});
+test('unverified external candidates have no invented licence or capacity',()=>{
+ const s=chooseCoverCandidate(chooseCoverTask(chooseAbsenceEvent(initialState(),'reese'),'estimates'),'external');
+ assert.equal(coverSuitability(s).prerequisites.status,'Unverified');
+ assert.equal(coverSuitability(s).authority.status,'Not established');
+ assert.match(coverSuitability(s).capacity.detail,/No external candidate/);
+});
+test('new absence invalidates stale selected prospects but does not erase past work',()=>{
+ const original=initialState();
+ const s=chooseCoverCandidate(chooseCoverTask(chooseAbsenceEvent(original,'casey'),'trade-sequence'),'morgan');
+ const next=chooseAbsenceEvent(s,'reese');
+ assert.deepEqual(next.coverReview,{taskId:null,candidateId:null});
+ assert.deepEqual(next.observations,original.observations);
+ assert.equal(coverSuitability(next).selected,null);
+});
+test('cover choice invalidates prior decision and is explained in memo',()=>{
+ const first=decide(chooseAbsenceEvent(initialState(),'reese'),'coach');
+ const assessed=chooseCoverCandidate(chooseCoverTask(first,'estimates'),'alex');
+ assert.equal(assessed.decision,null);
+ const result=decide(assessed,'coach');
+ assert.equal(result.decision.coverReview.canCover,false);
+ assert.match(memoText(result.decision),/Cover prospect: Alex/);
+ assert.match(memoText(result.decision),/Approval authority:/);
 });

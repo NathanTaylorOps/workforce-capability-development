@@ -1,4 +1,4 @@
-import { ABSENCE_EVENTS, CRITICAL_RESPONSIBILITIES, BASE_OBSERVATIONS, COVERAGE_OPTIONS, SUCCESSION_OPTIONS, ORGANISATION_OPTIONS, ORGANISATION_ROLES, FIXTURE_VERSION, PATHWAYS, SKILLS, WEEKLY_CHECKIN, WORKFORCE_FIXTURE } from './data.js';
+import { ABSENCE_EVENTS, COVER_REVIEW_OPTIONS, CRITICAL_RESPONSIBILITIES, BASE_OBSERVATIONS, COVERAGE_OPTIONS, SUCCESSION_OPTIONS, ORGANISATION_OPTIONS, ORGANISATION_ROLES, FIXTURE_VERSION, PATHWAYS, SKILLS, WEEKLY_CHECKIN, WORKFORCE_FIXTURE } from './data.js';
 
 /** Immutable, deterministic demo state: no real personal records, network or browser storage. */
 export function initialState() {
@@ -16,6 +16,7 @@ export function initialState() {
     succession: { option: null, confirmed: false },
     organisation: { option: null, confirmed: false },
     absence: { event: null },
+    coverReview: { taskId: null, candidateId: null },
     employeeFeedback: 'Interested in growing, but wants supported practice before leading alone.',
     events: [],
     decision: null
@@ -25,7 +26,7 @@ export function initialState() {
 export function chooseAbsenceEvent(state, eventId) {
   if (eventId !== null && !ABSENCE_EVENTS.some(x => x.id === eventId)) throw new Error('Unknown hypothetical role absence.');
   if (state.absence.event === eventId) return state;
-  return { ...state, absence: { event: eventId }, decision: null,
+  return { ...state, absence: { event: eventId }, coverReview: { taskId: null, candidateId: null }, decision: null,
     events: [...state.events, { type: 'absence', detail: eventId ?? 'baseline restored' }] };
 }
 /** Explicit tasks and verified owners, not a generic staffing-health rating. */
@@ -54,6 +55,38 @@ export function absenceImpact(state) {
     actingManagerVerified: false,
     provisional: true
   };
+}
+/** Inspect an affected task only; selecting a person never grants authority. */
+export function chooseCoverTask(state, taskId) {
+  const task = absenceImpact(state).roles.find(x => x.id === taskId && x.affected);
+  if (!task) throw new Error('Only responsibilities exposed by the chosen hypothetical absence can be reviewed.');
+  if (state.coverReview.taskId === taskId) return state;
+  return { ...state, coverReview: {taskId, candidateId:null}, decision:null, events:[...state.events,{type:'cover-task',detail:task.title}] };
+}
+export function chooseCoverCandidate(state, candidateId) {
+  const option = COVER_REVIEW_OPTIONS.find(x => x.taskId === state.coverReview.taskId && x.candidateId === candidateId);
+  if (!option || !absenceImpact(state).roles.some(x => x.id === option.taskId && x.affected)) throw new Error('Unknown or inapplicable fictional support candidate.');
+  if (state.coverReview.candidateId === candidateId) return state;
+  return { ...state, coverReview: {...state.coverReview,candidateId}, decision:null, events:[...state.events,{type:'cover-prospect',detail:option.taskId+': '+candidateId}] };
+}
+export function coverSuitability(state) {
+  const task = absenceImpact(state).roles.find(x => x.id === state.coverReview.taskId && x.affected);
+  const options = task ? COVER_REVIEW_OPTIONS.filter(x => x.taskId === task.id) : [];
+  const candidate = options.find(x => x.candidateId === state.coverReview.candidateId) ?? null;
+  if (!candidate) return {task:task??null,options,selected:null,outcome:'Not assessed',canCover:false};
+  const remaining = organisationImpact(state).spareMentorHours;
+  const capacityDetail = candidate.candidateId === 'morgan' ? remaining+' of 3 mentoring hours remain unallocated, but zero additional task-duty hours are verified. Mentor time cannot be counted twice.' :
+    candidate.candidateId === 'alex' ? 'Alex has 32 hours of assigned field work; no independent estimating cover hours are verified.' :
+    candidate.candidateId === 'jordan' ? 'Jordan’s task availability is unverified; coached time cannot be counted as independent role coverage.' :
+    'No external candidate, engagement, start date or available hours are established.';
+  const preference = candidate.candidateId === 'alex' && state.path === 'operations' ? 'Alex selected a cross-functional learning path; this is not agreement to take on estimating cover.' : candidate.choice;
+  return {task,options,selected:candidate,
+    evidence:{status:'Incomplete for this duty',detail:candidate.evidence},
+    prerequisites:{status:'Unverified',detail:candidate.prerequisite},
+    authority:{status:'Not established',detail:candidate.authority},
+    capacity:{status:'Not verified',confirmedTaskHours:0,unallocatedMentorHours:remaining,detail:capacityDetail},
+    preference,canCover:false,outcome:'No authorised replacement established',
+    unresolved:[candidate.evidence,candidate.prerequisite,candidate.authority,capacityDetail],next:candidate.next,provisional:true};
 }
 function requireGmAvailable(state) {
   if (state.absence.event === 'casey') throw new Error('Casey is unavailable in this hypothetical event; no authorised acting GM is recorded. Restore the baseline before making new GM approvals.');
@@ -333,7 +366,7 @@ export function decide(state, decisionId) {
     fixture: state.version,
     pathway: PATHWAYS[state.path].title,
     action: option.title,
-    summary, next, impact, workforce, succession, organisation, absence: absenceImpact(state),
+    summary, next, impact, workforce, succession, organisation, absence: absenceImpact(state), coverReview: coverSuitability(state),
     known: ['Practical trade quality supported by example observations.', 'Commercial awareness supported by example observations.'],
     unknown: SKILLS.filter(s => skillStatus(state, s.id) === 'unknown').map(s => s.name),
     needsReview: SKILLS.filter(s => skillStatus(state, s.id) === 'review').map(s => s.name),
@@ -379,6 +412,8 @@ export function memoText(record) {
     `Succession status: ${record.workforce?.successorStatus ?? 'Not assessed'}`,
     `Organisation-wide response: ${record.organisation?.approach ?? 'Not selected'}; fictional GM review: ${record.organisation?.confirmed ? 'recorded' : 'not recorded'}`,
     `Hypothetical critical-role event: ${record.absence?.label ?? 'No additional absence modelled'}`,
+    `Cover prospect: ${record.coverReview?.selected?.name ?? 'None'}; ${record.coverReview?.outcome ?? 'Not assessed'}`, 
+    ...(record.coverReview?.selected ? [`Cover duty: ${record.coverReview.task.title}`,`Cover evidence: ${record.coverReview.evidence.detail}`,`Prerequisites: ${record.coverReview.prerequisites.detail}`,`Approval authority: ${record.coverReview.authority.detail}`,`Available hours: ${record.coverReview.capacity.detail}`,`Employee preference: ${record.coverReview.preference}`,`Cover follow-up: ${record.coverReview.next}`] : []),
     'Hypothetical absence only: No real absence, availability, certification, or acting authority has been verified.',
     `Hypothetical exposure: ${record.absence?.covered ?? 'unknown'} covered; ${record.absence?.partial ?? 'unknown'} partially supported; ${record.absence?.uncovered ?? 'unknown'} uncovered`,
     ...(record.absence?.roles ?? []).filter(x => x.affected).map(x => `Exposed responsibility — ${x.title}: ${x.status}; ${x.detail} Next: ${x.next}`),

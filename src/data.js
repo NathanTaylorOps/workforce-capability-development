@@ -121,6 +121,80 @@ export const CRITICAL_RESPONSIBILITIES = Object.freeze([
     next: 'Recover source assumptions and arrange a verified reviewer before approving a new schedule.' }
 ]);
 
+/** Entirely fictional role-specific cover prospects, never approved replacements. */
+export const COVER_REVIEW_OPTIONS = Object.freeze([
+  {
+    "taskId": "site-approval",
+    "candidateId": "morgan",
+    "name": "Morgan · senior leading hand",
+    "evidence": "Trade mentoring does not establish independent site-approval competence.",
+    "choice": "Morgan prefers technical mentoring; no managerial appointment requested.",
+    "prerequisite": "Site-specific mandatory credentials and conditions remain unverified.",
+    "authority": "No GM or site sign-off authority established.",
+    "next": "Escalate to an authorised decision-maker; verify powers and prerequisites."
+  },
+  {
+    "taskId": "trade-sequence",
+    "candidateId": "morgan",
+    "name": "Morgan · senior leading hand",
+    "evidence": "Can assist with technical sequencing; approval competence unverified.",
+    "choice": "Technical input does not imply Morgan wants a supervisory role.",
+    "prerequisite": "Independent sign-off prerequisites not confirmed.",
+    "authority": "Can draft, not approve Casey’s trade sequence.",
+    "next": "Get authorised managerial review before proceeding."
+  },
+  {
+    "taskId": "trade-sequence",
+    "candidateId": "jordan",
+    "name": "Jordan · developing colleague",
+    "evidence": "Coached handover observed; no independent coordination evidence.",
+    "choice": "Jordan is interested in learning, not assigned independent cover.",
+    "prerequisite": "Competence and role permissions unverified.",
+    "authority": "No site or coordination sign-off authority.",
+    "next": "Arrange properly supervised practice and mentor time."
+  },
+  {
+    "taskId": "estimates",
+    "candidateId": "alex",
+    "name": "Alex · field operative",
+    "evidence": "Commercial awareness does not demonstrate independent estimating competence.",
+    "choice": "Estimating is an interest, not a role assignment.",
+    "prerequisite": "Employer-specific bid requirements not checked; no universal licence implied.",
+    "authority": "No estimate or tender approval authority.",
+    "next": "Arrange an estimating observation and suitable independent review."
+  },
+  {
+    "taskId": "estimates",
+    "candidateId": "external",
+    "name": "Potential external estimator",
+    "evidence": "No specific applicant, work sample or assessment available.",
+    "choice": "No external engagement or consent established.",
+    "prerequisite": "Verify relevant role requirements when a person is identified.",
+    "authority": "No company approval authority established.",
+    "next": "Confirm candidate, terms, budget, credentials and delegated authority."
+  },
+  {
+    "taskId": "bid-handover",
+    "candidateId": "alex",
+    "name": "Alex · field operative",
+    "evidence": "Commercial knowledge does not establish independent bid handover competence.",
+    "choice": "Cross-functional learning is optional and chosen with Alex.",
+    "prerequisite": "Required estimating checks and permissions remain unverified.",
+    "authority": "No commercial handover sign-off authority.",
+    "next": "Use an authorised estimating reviewer for the handover."
+  },
+  {
+    "taskId": "bid-handover",
+    "candidateId": "morgan",
+    "name": "Morgan · senior leading hand",
+    "evidence": "Technical sequencing insight, but no independently verified estimating handover competence.",
+    "choice": "Technical expertise is not an estimating appointment.",
+    "prerequisite": "Role-specific sign-off obligations unknown.",
+    "authority": "No commercial bid handover authority.",
+    "next": "Share site constraints with the authorised estimator."
+  }
+]);
+
 export const SCENARIO_ASSUMPTIONS = [
   'Two fictional projects require coordination this week.',
   'The illustrated week includes 32 assigned field-work hours for Alex; this is not a full-time employment assumption.',

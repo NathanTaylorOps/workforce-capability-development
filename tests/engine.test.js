@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { coverSuitability, chooseCoverTask, chooseCoverCandidate, absenceImpact, chooseAbsenceEvent, initialState, hearEmployee, recordWeeklyReview, skillStatus, chooseCoveragePlan, confirmCoveragePlan, chooseSuccessionPlan, confirmSuccessionPlan, successionImpact, chooseOrganisationPlan, confirmOrganisationPlan, organisationImpact, workforceImpact, choosePath, addSampleObservation, reviewEvidence, decisionChoices, decide, rescheduleTraining, recordMentoring, memoText, supportSummary, selectSkill, updateStep, observationsFor } from '../src/engine.js';
+import { continuityComparison, proposeContinuityResponse, continuityComparisonRecord, continuityComparisonMemo, coverSuitability, chooseCoverTask, chooseCoverCandidate, absenceImpact, chooseAbsenceEvent, initialState, hearEmployee, recordWeeklyReview, skillStatus, chooseCoveragePlan, confirmCoveragePlan, chooseSuccessionPlan, confirmSuccessionPlan, successionImpact, chooseOrganisationPlan, confirmOrganisationPlan, organisationImpact, workforceImpact, choosePath, addSampleObservation, reviewEvidence, decisionChoices, decide, rescheduleTraining, recordMentoring, memoText, supportSummary, selectSkill, updateStep, observationsFor } from '../src/engine.js';
 
 const withMentor = state => recordMentoring(state);
 const withWeeklyReview = state => recordWeeklyReview(hearEmployee(state), 'handover');
@@ -642,4 +642,90 @@ test('cover choice invalidates prior decision and is explained in memo',()=>{
  assert.equal(result.decision.coverReview.canCover,false);
  assert.match(memoText(result.decision),/Cover prospect: Alex/);
  assert.match(memoText(result.decision),/Approval authority:/);
+});
+
+test('continuity comparison shares a single immutable exposure baseline for both responses',()=>{
+  const state=chooseAbsenceEvent(initialState(),'casey');
+  const original=structuredClone(state);
+  const compared=continuityComparison(state);
+  assert.equal(compared.responses.length,2);
+  assert.deepEqual(compared.baseline.tasks.map(x=>x.id),['site-approval','trade-sequence']);
+  assert.deepEqual(compared.responses.map(x=>[x.covered,x.partial,x.uncovered]),[[4,1,1],[4,1,1]]);
+  assert.deepEqual(compared.responses.map(x=>x.qualifiedCoverHours),[0,0]);
+  assert.ok(compared.responses.every(x=>!x.authorityGranted));
+  assert.deepEqual(state,original);
+});
+test('same Reese absence has two distinct scheduling and sourcing consequences, not filled positions',()=>{
+  const compared=continuityComparison(chooseAbsenceEvent(initialState(),'reese'));
+  assert.deepEqual(compared.responses.map(x=>x.uncovered),[2,2]);
+  assert.deepEqual(compared.responses.map(x=>x.partial),[0,0]);
+  assert.deepEqual(compared.responses.map(x=>x.deferredHours),[3,0]);
+  assert.ok(compared.responses.every(x=>x.risk.includes('uncovered')));
+  assert.ok(compared.responses.every(x=>x.owner==='Casey · GM'));
+});
+test('no selected absence means no comparison proposal or export',()=>{
+  const state=initialState();
+  assert.equal(continuityComparison(state).responses.length,0);
+  assert.throws(()=>proposeContinuityResponse(state,'stage'),/Choose a hypothetical absence/);
+  assert.throws(()=>continuityComparisonRecord(state),/Select a current response/);
+});
+test('a response proposal does not grant authority or bypass unavailable GM',()=>{
+  const absent=chooseAbsenceEvent(initialState(),'casey');
+  const proposed=proposeContinuityResponse(absent,'source');
+  assert.equal(continuityComparison(proposed).proposedId,'source');
+  assert.equal(continuityComparison(proposed).status.includes('human review'),true);
+  assert.equal(absenceImpact(proposed).uncovered,1);
+  assert.ok(decisionChoices(proposed).every(x=>!x.available));
+  assert.throws(()=>decide(proposed,'coach'),/not permitted/);
+  assert.equal(proposed.coverage.confirmed,false);
+  assert.equal(proposed.decision,null);
+});
+test('comparison does not permit arbitrary option or event mismatch',()=>{
+  const absent=chooseAbsenceEvent(initialState(),'reese');
+  assert.throws(()=>proposeContinuityResponse(absent,'other'),/Choose a hypothetical absence/);
+  const p=proposeContinuityResponse(absent,'stage');
+  assert.equal(proposeContinuityResponse(p,'stage'),p);
+  assert.equal(continuityComparison(p).proposedId,'stage');
+  const changed=chooseAbsenceEvent(p,'casey');
+  assert.equal(changed.comparison.proposed,null);
+  assert.equal(continuityComparison(changed).proposedId,null);
+});
+test('changing support or pathway invalidates the comparison proposal but retains evidence',()=>{
+  const before=proposeContinuityResponse(chooseAbsenceEvent(initialState(),'reese'),'stage');
+  const afterMentor=recordMentoring(before);
+  assert.equal(continuityComparison(afterMentor).proposedId,null);
+  assert.throws(()=>continuityComparisonRecord(afterMentor),/Select a current response/);
+  assert.deepEqual(afterMentor.observations,before.observations);
+  const afterPath=choosePath(before,'operations');
+  assert.equal(continuityComparison(afterPath).proposedId,null);
+  assert.deepEqual(afterPath.observations,before.observations);
+});
+test('changing cover prospect invalidates a proposal instead of silently blessing it',()=>{
+  const absent=chooseAbsenceEvent(initialState(),'reese');
+  const proposed=proposeContinuityResponse(absent,'source');
+  const reviewed=chooseCoverCandidate(chooseCoverTask(proposed,'estimates'),'alex');
+  assert.equal(continuityComparison(reviewed).proposedId,null);
+  assert.equal(coverSuitability(reviewed).canCover,false);
+});
+test('comparison export names both assumptions, accountability, risks and human next review',()=>{
+  const proposed=proposeContinuityResponse(chooseAbsenceEvent(initialState(),'reese'),'source');
+  const record=continuityComparisonRecord(proposed);
+  assert.equal(record.synthetic,true);
+  assert.match(record.decisionStatus,/not approved/);
+  assert.equal(record.independentAuthorityEstablished,false);
+  assert.equal(record.responses.length,2);
+  assert.equal(record.assumptions.length,2);
+  assert.match(record.accountable,/Casey/);
+  assert.match(record.nextReview,/Verify/);
+  assert.match(continuityComparisonMemo(record),/Same baseline/);
+  assert.match(continuityComparisonMemo(record),/No independent authority/);
+  assert.match(continuityComparisonMemo(record),/PROPOSED for human review/);
+});
+test('same hypothetical proposal replays deterministically on reset',()=>{
+  const make=()=>continuityComparisonRecord(proposeContinuityResponse(chooseAbsenceEvent(initialState(),'casey'),'stage'));
+  assert.deepEqual(make(),make());
+  const state=proposeContinuityResponse(chooseAbsenceEvent(initialState(),'casey'),'stage');
+  const restored=chooseAbsenceEvent(state,null);
+  assert.equal(continuityComparison(restored).proposedId,null);
+  assert.equal(continuityComparison(restored).responses.length,0);
 });

@@ -1,5 +1,5 @@
 /** All organisations, characters, observations, costs and outcomes below are fictional. */
-export const FIXTURE_VERSION = '2026-10-demo-5';
+export const FIXTURE_VERSION = '2026-10-demo-6';
 export const SCENARIO_NAME = 'Hawthorn Projects';
 export const STEPS = [
   { id: 'brief', title: 'The situation', short: 'Brief' },
@@ -81,6 +81,19 @@ export const SUCCESSION_OPTIONS = [
     next: 'Casey reviews the recruiting brief and verifies any real candidate before making an offer.' }
 ];
 
+/** Completely fictional role coverage and organisational response options, not employee ratings. */
+export const ORGANISATION_ROLES = Object.freeze([
+  { id: 'supervision', title: 'Site supervision', owner: 'Casey · GM', dependency: 'Casey remains the sole verified authority in this teaching fixture.', next: 'Develop a suitable deputy or verify independent supervisory cover.' },
+  { id: 'field', title: 'Field delivery', owner: 'Alex · field operative', dependency: 'Four hours of field work may be displaced by development practice.', next: 'Arrange approved relief or reschedule the affected work.' },
+  { id: 'mentoring', title: 'Technical quality & mentoring', owner: 'Morgan · leading hand', dependency: 'One experienced mentor covers trade coaching and quality knowledge.', next: 'Protect mentor time and share practical methods without assuming management readiness.' },
+  { id: 'estimating', title: 'Estimating & scheduling', owner: 'Reese · estimator', dependency: 'Only Reese is shown as holding current estimating workflow knowledge.', next: 'Document the bid-to-schedule handover and assess cross-training options.' }
+]);
+export const ORGANISATION_OPTIONS = Object.freeze([
+  { id: 'reserve', title: 'Keep an hour for site contingencies', subtitle: 'Protect the remaining one hour of Morgan’s capacity; Jordan’s extra coached handover would need another arrangement.', action: 'Casey to plan a later supervised learning slot for Jordan.' },
+  { id: 'jordan', title: 'Coach Jordan for one additional hour', subtitle: 'Allocate Morgan’s last hour to Jordan, taking mentor demand to 3 of 3 hours. No verified successor results.', action: 'Casey to agree a one-hour coached task with Jordan and Morgan and review outcomes.' },
+  { id: 'external', title: 'Explore external training support', subtitle: 'Keep the spare hour for contingency while researching a separately funded trainer. External support is not booked or verified.', action: 'Casey to investigate provider suitability, cost, scope and permission before relying on support.' }
+]);
+
 export const SCENARIO_ASSUMPTIONS = [
   'Two fictional projects require coordination this week.',
   'The illustrated week includes 32 assigned field-work hours for Alex; this is not a full-time employment assumption.',
@@ -92,6 +105,9 @@ export const SCENARIO_ASSUMPTIONS = [
   'A supported requirement in the fictional demo needs two independently demonstrated task records and a simulated manager evidence review.',
   'Mentored practice, training attendance and quantity of notes alone do not confer authority.',
   'Succession choices represent development and handover plans only; there is no verified independent site-supervision successor.',
+  'The four organisational role owners and a single-week mentor budget are invented illustrations, not a live staffing roster.',
+  'Estimating has one documented owner in this fictional fixture; that does not imply that only one real person could ever perform it.',
+  'Allocating the last mentor hour to Jordan funds coached practice only; it does not establish competence or cover site-supervision authority.',
   'Independent site-supervision authority is not established in the scenario.',
   'Evidence is illustrative; no real-world qualification is assessed.'
 ];

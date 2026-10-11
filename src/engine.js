@@ -1,4 +1,4 @@
-import { BASE_OBSERVATIONS, COVERAGE_OPTIONS, SUCCESSION_OPTIONS, FIXTURE_VERSION, PATHWAYS, SKILLS, WEEKLY_CHECKIN, WORKFORCE_FIXTURE } from './data.js';
+import { BASE_OBSERVATIONS, COVERAGE_OPTIONS, SUCCESSION_OPTIONS, ORGANISATION_OPTIONS, ORGANISATION_ROLES, FIXTURE_VERSION, PATHWAYS, SKILLS, WEEKLY_CHECKIN, WORKFORCE_FIXTURE } from './data.js';
 
 /** Immutable, deterministic demo state: no real personal records, network or browser storage. */
 export function initialState() {
@@ -14,6 +14,7 @@ export function initialState() {
     weekly: { heardEmployee: false, record: null },
     coverage: { option: null, confirmed: false },
     succession: { option: null, confirmed: false },
+    organisation: { option: null, confirmed: false },
     employeeFeedback: 'Interested in growing, but wants supported practice before leading alone.',
     events: [],
     decision: null
@@ -41,7 +42,7 @@ export function updateStep(state, index) {
 export function choosePath(state, id) {
   if (!PATHWAYS[id]) throw new Error('Unknown development pathway');
   if (state.path === id) return state;
-  return { ...state, path: id, weekly: { heardEmployee: false, record: null }, coverage: { option: null, confirmed: false }, succession: { option: null, confirmed: false },
+  return { ...state, path: id, weekly: { heardEmployee: false, record: null }, coverage: { option: null, confirmed: false }, succession: { option: null, confirmed: false }, organisation: { option: null, confirmed: false },
     employeeFeedback: 'Considering a different development direction; a fresh two-way check-in is needed.',
     decision: null, events: [...state.events, { type: 'path', detail: PATHWAYS[id].title }] };
 }
@@ -119,13 +120,13 @@ export function chooseCoveragePlan(state, id) {
   if (state.path !== 'site') throw new Error('This coverage scenario is available on the site coordination pathway.');
   if (!COVERAGE_OPTIONS.some(option => option.id === id)) throw new Error('Unknown workforce coverage option.');
   if (state.coverage.option === id) return state;
-  return { ...state, coverage: { option: id, confirmed: false }, decision: null,
+  return { ...state, coverage: { option: id, confirmed: false }, organisation: { ...state.organisation, confirmed: false }, decision: null,
     events: [...state.events, { type: 'coverage-choice', detail: id }] };
 }
 export function confirmCoveragePlan(state) {
   if (state.path !== 'site' || !state.coverage.option) throw new Error('Select a valid coverage option before confirming the fictional GM review.');
   if (state.coverage.confirmed) return state;
-  return { ...state, coverage: { ...state.coverage, confirmed: true }, decision: null,
+  return { ...state, coverage: { ...state.coverage, confirmed: true }, organisation: { ...state.organisation, confirmed: false }, decision: null,
     events: [...state.events, { type: 'coverage-review', detail: state.coverage.option }] };
 }
 /** Select a *development or continuity approach*. This never nominates an authorised supervisor. */
@@ -133,7 +134,7 @@ export function chooseSuccessionPlan(state, id) {
   if (state.path !== 'site') throw new Error('Succession planning is scoped to the site-coordination scenario.');
   if (!SUCCESSION_OPTIONS.some(option => option.id === id)) throw new Error('Unknown succession continuity option.');
   if (state.succession.option === id) return state;
-  return { ...state, succession: { option: id, confirmed: false }, decision: null,
+  return { ...state, succession: { option: id, confirmed: false }, organisation: { ...state.organisation, confirmed: false }, decision: null,
     events: [...state.events, { type: 'succession-choice', detail: id }] };
 }
 /** Manager sign-off acknowledges a knowledge handover plan, *never* successor competence. */
@@ -141,7 +142,7 @@ export function confirmSuccessionPlan(state) {
   if (state.path !== 'site' || !state.succession.option) throw new Error('Select a succession continuity response first.');
   if (!state.weekly.record) throw new Error('Record a two-way development review before confirming succession follow-through.');
   if (state.succession.confirmed) return state;
-  return { ...state, succession: { ...state.succession, confirmed: true }, decision: null,
+  return { ...state, succession: { ...state.succession, confirmed: true }, organisation: { ...state.organisation, confirmed: false }, decision: null,
     events: [...state.events, { type: 'succession-review', detail: state.succession.option }] };
 }
 /** Explicit unresolved risks remain even when a handover *plan* is recorded. */
@@ -164,6 +165,58 @@ export function successionImpact(state) {
   };
 }
 
+/** Plan cross-role manager and mentor allocation; role authority is never inferred. */
+export function chooseOrganisationPlan(state, id) {
+  if (state.path !== 'site') throw new Error('The organisational investment scenario is available on the site pathway.');
+  if (!ORGANISATION_OPTIONS.some(option => option.id === id)) throw new Error('Unknown organisational allocation.');
+  if (state.organisation.option === id) return state;
+  return { ...state, organisation: { option: id, confirmed: false }, decision: null,
+    events: [...state.events, { type: 'organisation-choice', detail: id }] };
+}
+export function confirmOrganisationPlan(state) {
+  if (state.path !== 'site' || !ORGANISATION_OPTIONS.some(x => x.id === state.organisation.option)) {
+    throw new Error('Choose a valid organisational response before confirmation.');
+  }
+  if (!state.weekly.record || !state.coverage.confirmed || !state.succession.confirmed) {
+    throw new Error('Record the development, field coverage and succession reviews before confirming organisation-wide capacity.');
+  }
+  if (state.organisation.confirmed) return state;
+  return { ...state, organisation: { ...state.organisation, confirmed: true }, decision: null,
+    events: [...state.events, { type: 'organisation-review', detail: state.organisation.option }] };
+}
+/** Transparent synthetic role exposures and hour balance; not a talent or organisational-health score. */
+export function organisationImpact(state, action = 'scope') {
+  const selected = ORGANISATION_OPTIONS.find(x => x.id === state.organisation.option);
+  const confirmed = Boolean(selected && state.organisation.confirmed && state.path === 'site');
+  const jordanHour = selected?.id === 'jordan' && confirmed ? 1 : 0;
+  const mentorUsed = WORKFORCE_FIXTURE.mentorReservedHours + jordanHour;
+  const mentorAvailable = WORKFORCE_FIXTURE.mentorAvailableHours;
+  const workforce = workforceImpact(state, action);
+  const jordanHandover = state.succession.option === 'jordan' && state.succession.confirmed;
+  const jordanCapacityGap = jordanHandover && (!confirmed || selected?.id !== 'jordan');
+  const roles = ORGANISATION_ROLES.map(role => {
+    if (role.id === 'supervision') return { ...role, status: 'Single authorised owner', note: 'Casey retains site authority; no independent successor is verified.' };
+    if (role.id === 'field') return { ...role, status: workforce.unaddressedHours > 0 ? 'Work coverage unresolved' : workforce.deferredHours > 0 ? 'Replanned, not completed' : workforce.reliefHours > 0 ? 'Provisional relief plan' : 'No reassignment applied', note: workforce.consequence };
+    if (role.id === 'mentoring') return { ...role, status: mentorUsed === mentorAvailable ? 'Full weekly allocation' : 'One hour unallocated', note: `${mentorUsed} of ${mentorAvailable} fictional mentor hours allocated. Allocation is not evidence of competence.` };
+    return { ...role, status: 'Single documented knowledge owner', note: 'No verified estimating backup exists within this fictional fixture; document the workflow and evaluate cross-training.' };
+  });
+  const risks = [
+    'Site-supervision authority remains concentrated with Casey.',
+    'Estimating and scheduling knowledge remains with one documented owner.',
+    ...(jordanCapacityGap ? ['Jordan’s selected handover has no allocated new mentor hour in this fictional week.'] : []),
+    ...(mentorUsed === mentorAvailable ? ['No spare Morgan mentoring hour remains for site contingencies.'] : []),
+    ...(selected?.id === 'external' ? ['External instruction is only being explored; provider, cost and availability are unverified.'] : []),
+    ...(workforce.unaddressedHours > 0 ? ['Four hours of field work lack a confirmed coverage response.'] : [])
+  ];
+  return {
+    option: selected?.id ?? null, confirmed, approach: selected?.title ?? 'Not selected',
+    managerAction: selected?.action ?? 'Choose and confirm an organisational response after the other management reviews.',
+    mentorAvailableHours: mentorAvailable, alexMentorHours: WORKFORCE_FIXTURE.mentorReservedHours,
+    jordanMentorHours: jordanHour, allocatedMentorHours: mentorUsed,
+    spareMentorHours: mentorAvailable - mentorUsed,
+    jordanCapacityGap, qualifiedSuccessor: false, risks, roles, provisional: true
+  };
+}
 /** Calculates transparent *illustrative* consequences, not a forecast of staffing or finance. */
 export function workforceImpact(state, action = 'scope') {
   const applied = action === 'scope' && state.path === 'site' && state.coverage.option !== 'defer';
@@ -196,12 +249,13 @@ export function workforceImpact(state, action = 'scope') {
 }
 export function canAssignScopedPlanning(state) {
   return state.path === 'site' && state.weekly.record?.actionId === 'handover' && skillStatus(state, 'planning') === 'supported' &&
-    state.coverage.confirmed && state.succession.confirmed && ['stage', 'relief'].includes(state.coverage.option) && workforceImpact(state).unaddressedHours === 0;
+    state.coverage.confirmed && state.succession.confirmed && state.organisation.confirmed &&
+    !(state.succession.option === 'jordan' && organisationImpact(state).jordanCapacityGap) && ['stage', 'relief'].includes(state.coverage.option) && workforceImpact(state).unaddressedHours === 0;
 }
 export function decisionChoices(state) {
   return [
     { id: 'coach', title: 'Continue supported practice', description: 'Keep coaching in place and reassess the evidence.', available: true },
-    { id: 'scope', title: 'Assign a bounded planning task', description: 'GM approves one mentored two-trade look-ahead; no site-supervision authority.', available: canAssignScopedPlanning(state), reason: state.path !== 'site' ? 'Available on the site-coordination pathway.' : !state.weekly.record ? 'First record a two-way weekly development review on Step 3.' : state.weekly.record.actionId !== 'handover' ? 'The agreed weekly action was not coached handover practice; this pathway needs a new agreed practice plan.' : skillStatus(state, 'planning') !== 'supported' ? 'Needs two independent planning demonstrations and a fictional GM evidence review; coached notes alone are insufficient.' : !state.coverage.option ? 'Choose a team coverage response below before releasing Alex from field work.' : state.coverage.option === 'defer' ? 'The team coverage plan defers this assignment. Choose a different plan if the task must proceed now.' : !state.coverage.confirmed ? 'Record the fictional GM coverage review below before committing to the assignment.' : !state.succession.option ? 'Choose a succession and knowledge-handover response before reallocating responsibilities.' : !state.succession.confirmed ? 'Record the fictional GM succession handover review; choosing a potential successor does not grant authority.' : 'The workforce and authority requirements must be reviewed.' },
+    { id: 'scope', title: 'Assign a bounded planning task', description: 'GM approves one mentored two-trade look-ahead; no site-supervision authority.', available: canAssignScopedPlanning(state), reason: state.path !== 'site' ? 'Available on the site-coordination pathway.' : !state.weekly.record ? 'First record a two-way weekly development review on Step 3.' : state.weekly.record.actionId !== 'handover' ? 'The agreed weekly action was not coached handover practice; this pathway needs a new agreed practice plan.' : skillStatus(state, 'planning') !== 'supported' ? 'Needs two independent planning demonstrations and a fictional GM evidence review; coached notes alone are insufficient.' : !state.coverage.option ? 'Choose a team coverage response below before releasing Alex from field work.' : state.coverage.option === 'defer' ? 'The team coverage plan defers this assignment. Choose a different plan if the task must proceed now.' : !state.coverage.confirmed ? 'Record the fictional GM coverage review below before committing to the assignment.' : !state.succession.option ? 'Choose a succession and knowledge-handover response before reallocating responsibilities.' : !state.succession.confirmed ? 'Record the fictional GM succession handover review; choosing a potential successor does not grant authority.' : !state.organisation.option ? 'Choose an organisation-wide capacity and mentoring response.' : !state.organisation.confirmed ? 'Confirm the organisation-wide resource response after the coverage and succession reviews.' : state.succession.option === 'jordan' && organisationImpact(state).jordanCapacityGap ? 'The proposed Jordan handover lacks a scheduled mentor hour; allocate suitable support before the handover proceeds.' : 'The workforce and authority requirements must be reviewed.' },
     { id: 'redirect', title: 'Explore a different contribution', description: 'Respect the employee’s preference and compare technical or cross-functional routes.', available: true },
     { id: 'appoint', title: 'Appoint independent site supervisor', description: 'Full authority over the site.', available: false, reason: 'Blocked: safety/authority and people-leadership requirements are not verified. Training or tenure does not override this.' }
   ];
@@ -214,6 +268,7 @@ export function decide(state, decisionId) {
   let impact;
   const workforce = workforceImpact(state, decisionId);
   const succession = successionImpact(state);
+  const organisation = organisationImpact(state, decisionId);
   if (decisionId === 'scope') {
     summary = 'Approve a supervised two-trade planning assignment, not a site-supervisor appointment.';
     next = 'Casey (GM) approves scope; Morgan observes the work; review after the assignment.';
@@ -231,7 +286,7 @@ export function decide(state, decisionId) {
     fixture: state.version,
     pathway: PATHWAYS[state.path].title,
     action: option.title,
-    summary, next, impact, workforce, succession,
+    summary, next, impact, workforce, succession, organisation,
     known: ['Practical trade quality supported by example observations.', 'Commercial awareness supported by example observations.'],
     unknown: SKILLS.filter(s => skillStatus(state, s.id) === 'unknown').map(s => s.name),
     needsReview: SKILLS.filter(s => skillStatus(state, s.id) === 'review').map(s => s.name),
@@ -275,6 +330,10 @@ export function memoText(record) {
     `Next succession review: ${record.succession?.next ?? 'Not arranged'}`,
     `Succession risk: ${record.succession?.risk ?? 'Not assessed'}`,
     `Succession status: ${record.workforce?.successorStatus ?? 'Not assessed'}`,
+    `Organisation-wide response: ${record.organisation?.approach ?? 'Not selected'}; fictional GM review: ${record.organisation?.confirmed ? 'recorded' : 'not recorded'}`,
+    `Mentor allocation: ${record.organisation?.allocatedMentorHours ?? 'unknown'}/${record.organisation?.mentorAvailableHours ?? 'unknown'}h; Jordan coaching: ${record.organisation?.jordanMentorHours ?? 'unknown'}h; unallocated: ${record.organisation?.spareMentorHours ?? 'unknown'}h`,
+    ...(record.organisation?.roles ?? []).map(x => `Role coverage — ${x.title}: ${x.owner}; status ${x.status}; ${x.note}`),
+    ...(record.organisation?.risks ?? []).map(x => `Unresolved organisational dependency: ${x}`),
     `Workforce consequence: ${record.impact}`,
     `Next action: ${record.next}`,
     'This record represents invented scenario choices only. It is not an assessment of a real person or employment advice.'

@@ -17,5 +17,7 @@ jobs:
           node-version: '22'
       - name: Syntax and scenario unit tests
         run: npm run check
+      - name: Check published-browser smoke script syntax
+        run: node --check tests/live-smoke.mjs
       - name: Confirm static entrypoint exists
         run: test -f index.html && test -f styles.css && test -f src/app.js

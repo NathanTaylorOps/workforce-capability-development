@@ -2,7 +2,7 @@
 
 **A practical, skills-first demonstration of people development, managerial judgment and organisational capability.**
 
-**Status: Functional prototype (v0.4 source proposed for review).** The public Leadership Studio uses entirely fictional data and demonstrates skills-first development, practical evidence, a two-way weekly review and proposed workforce-capacity decisions. The published [GitHub Pages site](https://nathantaylorops.github.io/workforce-capability-development/) follows the `main` branch; v0.4 will appear only after this PR is merged and deployment passes. This is a portfolio demonstration, **not** a production HR, personnel assessment, staffing or financial application. Complete independent live-site and accessibility validation remain outstanding.
+**Status: Functional prototype (v0.5 proposed for review; public site currently v0.4).** The fictional Leadership Studio demonstrates skills-first development, practical evidence, weekly management review, workforce coverage and now a proposed succession/knowledge-handover decision. The public [GitHub Pages site](https://nathantaylorops.github.io/workforce-capability-development/) follows `main`; v0.5 will appear only after this PR is merged and deployment succeeds. This is a portfolio demonstration, **not** a production HR, employee assessment, workforce scheduling or financial application. Full independent live-site and accessibility validation remain outstanding.
 
 ## Experience the prototype
 
@@ -111,3 +111,11 @@ The fictional GM now explicitly plans how four hours of Alex's existing field as
 The decision memo and outcome show field work retained, relief hours, deferred work, mentor availability, continuing GM accountability and the absence of an independently authorised supervisor successor. Changing a coverage choice invalidates any older decision.
 
 **Verification before PR review:** 30/30 local scenario tests and scripted desktop/mobile Chromium walkthroughs passed using in-memory concatenated JavaScript modules. Actual live ES-module loading, independent usability review and formal accessibility audit remain outstanding. [Scope, assumptions and verification](docs/qa/WORKFORCE_COVERAGE_V04.md).
+
+## Succession readiness and continuity in proposed v0.5
+
+The GM must also decide how to protect supervisory knowledge and prepare an appropriate handover, independently from the immediate four-hour field coverage plan. Fictional options include developing interested junior Jordan, sharing specialist knowledge with leading hand Morgan, or preparing an externally qualified supervisor search. Each choice exposes what is observed, what is unknown, a knowledge-transfer action, a named management follow-up and an unresolved succession risk.
+
+A separately recorded fictional GM handover review is now required before a bounded planning assignment can proceed. **None of these choices establishes an authorised independent supervisor**. Site accountability stays with the GM; a planned handover does not fill a vacancy. The outcome and exported decision memo preserve the chosen strategy, remaining evidence gaps and risks.
+
+**Local verification:** 38/38 scenario tests, plus desktop and mobile scripted Chromium walkthroughs, passed. The browser smoke tests used in-memory concatenated modules rather than a hosted ES-module graph. No deployed v0.5 site is claimed before the merge and successful Pages workflow. [Assumptions and verification](docs/qa/SUCCESSION_CONTINUITY_V05.md).

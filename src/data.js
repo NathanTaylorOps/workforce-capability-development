@@ -1,5 +1,5 @@
 /** All organisations, characters, observations, costs and outcomes below are fictional. */
-export const FIXTURE_VERSION = '2026-10-demo-4';
+export const FIXTURE_VERSION = '2026-10-demo-5';
 export const SCENARIO_NAME = 'Hawthorn Projects';
 export const STEPS = [
   { id: 'brief', title: 'The situation', short: 'Brief' },
@@ -62,6 +62,25 @@ export const COVERAGE_OPTIONS = [
   { id: 'relief', title: 'Arrange qualified cover', summary: 'Identify four hours of suitable relief capacity for Alex’s field responsibilities.', caveat: 'Casey must check availability, work scope, qualifications and budget before releasing Alex.' },
   { id: 'defer', title: 'Protect delivery; develop later', summary: 'Keep Alex on the existing field plan this week and revisit the development assignment.', caveat: 'Preserves current allocation; no planning-task delegation can occur this week.' }
 ];
+/** Fictional choices for *planning* succession, not certifying a successor or making an appointment. */
+export const SUCCESSION_OPTIONS = [
+  { id: 'jordan', title: 'Develop Jordan as a possible successor', category: 'Internal pathway',
+    evidence: 'Jordan has expressed interest and contributed to a coached handover; independent site-leadership evidence is incomplete.',
+    gap: 'Observe additional coordination and safety-critical work; verify required authority before any appointment.',
+    handover: 'Jordan shadows a defined trade handover while Casey retains responsibility and Morgan observes within available time.',
+    next: 'Casey checks Jordan’s interest and evidence at the next weekly review.' },
+  { id: 'morgan', title: 'Share technical knowledge with Morgan', category: 'Specialist continuity',
+    evidence: 'Morgan is a senior leading hand who mentors practical site work; independent supervision authority is not established.',
+    gap: 'Mentor time is already committed; technical depth is not evidence of independent site-supervision readiness.',
+    handover: 'Casey and Morgan document sequencing, quality checks and escalation contacts without adding unbudgeted mentoring hours.',
+    next: 'Casey reviews knowledge concentration and Morgan’s available capacity before allocating more work.' },
+  { id: 'external', title: 'Prepare an external supervision search', category: 'Recruitment option',
+    evidence: 'No available, qualified external person has been verified in this fictional scenario.',
+    gap: 'Availability, credentials, cost, fit and employment conditions must be checked before assigning work.',
+    handover: 'Casey creates a role-specific handover brief and maintains site accountability while suitable candidates are evaluated.',
+    next: 'Casey reviews the recruiting brief and verifies any real candidate before making an offer.' }
+];
+
 export const SCENARIO_ASSUMPTIONS = [
   'Two fictional projects require coordination this week.',
   'The illustrated week includes 32 assigned field-work hours for Alex; this is not a full-time employment assumption.',
@@ -72,6 +91,7 @@ export const SCENARIO_ASSUMPTIONS = [
   'The development plan allocates two of those hours.',
   'A supported requirement in the fictional demo needs two independently demonstrated task records and a simulated manager evidence review.',
   'Mentored practice, training attendance and quantity of notes alone do not confer authority.',
+  'Succession choices represent development and handover plans only; there is no verified independent site-supervision successor.',
   'Independent site-supervision authority is not established in the scenario.',
   'Evidence is illustrative; no real-world qualification is assessed.'
 ];

@@ -2,7 +2,7 @@
 
 **A practical, skills-first demonstration of people development, managerial judgment and organisational capability.**
 
-**Status: Functional prototype (v0.5 proposed for review; public site currently v0.4).** The fictional Leadership Studio demonstrates skills-first development, practical evidence, weekly management review, workforce coverage and now a proposed succession/knowledge-handover decision. The public [GitHub Pages site](https://nathantaylorops.github.io/workforce-capability-development/) follows `main`; v0.5 will appear only after this PR is merged and deployment succeeds. This is a portfolio demonstration, **not** a production HR, employee assessment, workforce scheduling or financial application. Full independent live-site and accessibility validation remain outstanding.
+**Status: Functional prototype (v0.5 published; v0.6 under review).** The [live Leadership Studio](https://nathantaylorops.github.io/workforce-capability-development/) demonstrates skills-first development, work-based evidence, weekly management review, coverage planning and knowledge continuity. A proposed v0.6 extension connects those decisions to a four-role organisational capacity view. The site updates only after a merged change passes the Pages deployment workflow. This is a fictional portfolio demonstration, **not** a production HR, employee assessment, workforce scheduling or financial system. Direct live-browser and accessibility validation remain outstanding.
 
 ## Experience the prototype
 
@@ -87,7 +87,7 @@ It is part of [NathanTaylorOps](https://github.com/NathanTaylorOps)'s operations
 | Repository foundation | Done |
 | Initial discovery, requirements and UX documentation | Drafted and merged; research ongoing |
 | First static leadership scenario | Merged into `main` in [PR #5](https://github.com/NathanTaylorOps/workforce-capability-development/pull/5) |
-| Scenario-rule tests | v0.4 has **30 local unit tests passing**; see the latest [Actions checks](https://github.com/NathanTaylorOps/workforce-capability-development/actions/workflows/ci.yml) for branch and deployed `main` verification |
+| Scenario-rule tests | v0.5 has **38 scenario tests passing**; proposed v0.6 has **46 local tests passing** (branch CI pending); see the latest [Actions checks](https://github.com/NathanTaylorOps/workforce-capability-development/actions/workflows/ci.yml) for branch and deployed `main` verification |
 | Browser interaction testing | Local scripted desktop/mobile flow performed; report below |
 | Public GitHub Pages deployment | GitHub Actions **successful**, [published URL](https://nathantaylorops.github.io/workforce-capability-development/); live browser smoke test still outstanding |
 | Independent reviewer / accessibility and release validation | Not yet completed |
@@ -112,10 +112,18 @@ The decision memo and outcome show field work retained, relief hours, deferred w
 
 **Verification before PR review:** 30/30 local scenario tests and scripted desktop/mobile Chromium walkthroughs passed using in-memory concatenated JavaScript modules. Actual live ES-module loading, independent usability review and formal accessibility audit remain outstanding. [Scope, assumptions and verification](docs/qa/WORKFORCE_COVERAGE_V04.md).
 
-## Succession readiness and continuity in proposed v0.5
+## Succession readiness and continuity in v0.5
 
 The GM must also decide how to protect supervisory knowledge and prepare an appropriate handover, independently from the immediate four-hour field coverage plan. Fictional options include developing interested junior Jordan, sharing specialist knowledge with leading hand Morgan, or preparing an externally qualified supervisor search. Each choice exposes what is observed, what is unknown, a knowledge-transfer action, a named management follow-up and an unresolved succession risk.
 
 A separately recorded fictional GM handover review is now required before a bounded planning assignment can proceed. **None of these choices establishes an authorised independent supervisor**. Site accountability stays with the GM; a planned handover does not fill a vacancy. The outcome and exported decision memo preserve the chosen strategy, remaining evidence gaps and risks.
 
-**Local verification:** 38/38 scenario tests, plus desktop and mobile scripted Chromium walkthroughs, passed. The browser smoke tests used in-memory concatenated modules rather than a hosted ES-module graph. No deployed v0.5 site is claimed before the merge and successful Pages workflow. [Assumptions and verification](docs/qa/SUCCESSION_CONTINUITY_V05.md).
+**Local verification:** 38/38 scenario tests, plus desktop and mobile scripted Chromium walkthroughs, passed. The browser smoke tests used in-memory concatenated modules rather than a hosted ES-module graph. [PR #10](https://github.com/NathanTaylorOps/workforce-capability-development/pull/10) was merged and the v0.5 Pages deployment succeeded; independently checking the full live browser flow remains outstanding. [Assumptions and verification](docs/qa/SUCCESSION_CONTINUITY_V05.md).
+
+## Organisational capacity and key-person dependency in proposed v0.6
+
+The proposed next slice adds a **four-role fictional organisational view** covering site supervision, field delivery, technical mentoring and estimating/scheduling. The GM can compare protecting contingency mentor time, assigning one additional coached handover to Jordan, or investigating external training support. Mentor capacity is bounded and each option exposes delivery and key-person dependency consequences.
+
+**No option certifies a successor, grants site-supervision authority, or turns an unverified external trainer into available capacity.** The fictional scenario remains single-week and illustrative, not a live staffing planner or business-wide succession model.
+
+**Verification:** 46/46 local Node.js scenario tests and scripted desktop/mobile browser walkthroughs passed on the proposed branch content; GitHub CI, hosted module loading, independent user testing and accessibility validation remain separate gates. [Detailed v0.6 assumptions and test limitations](docs/qa/ORGANISATIONAL_DEPTH_V06.md).

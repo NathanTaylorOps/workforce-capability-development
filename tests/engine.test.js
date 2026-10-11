@@ -1,11 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { initialState, hearEmployee, recordWeeklyReview, skillStatus, chooseCoveragePlan, confirmCoveragePlan, chooseSuccessionPlan, confirmSuccessionPlan, successionImpact, workforceImpact, choosePath, addSampleObservation, reviewEvidence, decisionChoices, decide, rescheduleTraining, recordMentoring, memoText, supportSummary, selectSkill, updateStep, observationsFor } from '../src/engine.js';
+import { initialState, hearEmployee, recordWeeklyReview, skillStatus, chooseCoveragePlan, confirmCoveragePlan, chooseSuccessionPlan, confirmSuccessionPlan, successionImpact, chooseOrganisationPlan, confirmOrganisationPlan, organisationImpact, workforceImpact, choosePath, addSampleObservation, reviewEvidence, decisionChoices, decide, rescheduleTraining, recordMentoring, memoText, supportSummary, selectSkill, updateStep, observationsFor } from '../src/engine.js';
 
 const withMentor = state => recordMentoring(state);
 const withWeeklyReview = state => recordWeeklyReview(hearEmployee(state), 'handover');
 const withContinuity = (state, option = 'jordan') => confirmSuccessionPlan(chooseSuccessionPlan(state, option));
-const withCoverage = (state, option = 'stage') => withContinuity(confirmCoveragePlan(chooseCoveragePlan(state, option)));
+const withOrganisation = (state, option = 'jordan') => confirmOrganisationPlan(chooseOrganisationPlan(state, option));
+const withCoverage = (state, option = 'stage') => withOrganisation(withContinuity(confirmCoveragePlan(chooseCoveragePlan(state, option))));
 const withPlanningPractice = state => addSampleObservation(addSampleObservation(withMentor(state), 'planning'), 'planning');
 const withReviewedPlanning = state => reviewEvidence(withPlanningPractice(withWeeklyReview(state)), 'planning');
 
@@ -237,7 +238,8 @@ test('field coverage choice is a separate prerequisite from competence and weekl
   const ready = confirmCoveragePlan(selected);
   assert.equal(decisionChoices(ready).find(x => x.id === 'scope').available, false);
   assert.match(decisionChoices(ready).find(x => x.id === 'scope').reason, /succession and knowledge-handover/);
-  assert.equal(decisionChoices(withContinuity(ready)).find(x => x.id === 'scope').available, true);
+  assert.equal(decisionChoices(withContinuity(ready)).find(x => x.id === 'scope').available, false);
+  assert.equal(decisionChoices(withOrganisation(withContinuity(ready))).find(x => x.id === 'scope').available, true);
   assert.equal(confirmCoveragePlan(ready), ready);
   assert.throws(() => decide(selected, 'scope'), /not permitted/);
 });
@@ -290,7 +292,8 @@ test('changing a coverage decision clears confirmation and any previous decision
   assert.equal(revised.coverage.confirmed, false);
   assert.equal(decisionChoices(revised).find(x => x.id === 'scope').available, false);
   assert.equal(chooseCoveragePlan(revised, 'relief'), revised);
-  assert.equal(decisionChoices(confirmCoveragePlan(revised)).find(x => x.id === 'scope').available, true);
+  assert.equal(decisionChoices(confirmCoveragePlan(revised)).find(x => x.id === 'scope').available, false);
+  assert.equal(decisionChoices(withOrganisation(confirmCoveragePlan(revised))).find(x => x.id === 'scope').available, true);
 });
 
 test('alternative career direction resets coverage without erasing genuine work evidence', () => {
@@ -358,7 +361,9 @@ test('succession confirmation and coverage must be separately recorded before sc
   assert.match(decisionChoices(nominated).find(x => x.id === 'scope').reason, /GM succession handover review/);
   assert.throws(() => decide(nominated, 'scope'), /not permitted/);
   const confirmed = confirmSuccessionPlan(nominated);
-  assert.equal(decisionChoices(confirmed).find(x => x.id === 'scope').available, true);
+  assert.match(decisionChoices(confirmed).find(x => x.id === 'scope').reason, /organisation-wide capacity/);
+  assert.equal(decisionChoices(confirmed).find(x => x.id === 'scope').available, false);
+  assert.equal(decisionChoices(withOrganisation(confirmed)).find(x => x.id === 'scope').available, true);
   assert.equal(decisionChoices(confirmed).find(x => x.id === 'appoint').available, false);
 });
 
@@ -371,7 +376,8 @@ test('changing a succession approach invalidates its previous sign-off and manag
   assert.equal(changed.decision, null);
   assert.equal(decisionChoices(changed).find(x=>x.id==='scope').available,false);
   assert.equal(chooseSuccessionPlan(changed, 'external'), changed);
-  assert.equal(decisionChoices(confirmSuccessionPlan(changed)).find(x=>x.id==='scope').available,true);
+  assert.equal(decisionChoices(confirmSuccessionPlan(changed)).find(x=>x.id==='scope').available,false);
+  assert.equal(decisionChoices(withOrganisation(confirmSuccessionPlan(changed), 'reserve')).find(x=>x.id==='scope').available,true);
 });
 
 test('invalid succession choices cannot create phantom candidates or role permissions', () => {
@@ -400,5 +406,96 @@ test('succession choice and handover risks appear in decision export without imp
     assert.ok(memo.includes(term), `Missing ${term}`);
   }
   assert.match(memo, /independent supervisory succession and readiness remain unresolved/);
+  assert.deepEqual(decide(withCoverage(withReviewedPlanning(initialState())), 'scope'), decided);
+});
+
+
+test('four-role organisational board is synthetic, deterministic and not a readiness score', () => {
+  const state = initialState();
+  const board = organisationImpact(state);
+  assert.equal(board.roles.length, 4);
+  assert.deepEqual(board.roles.map(x => x.id), ['supervision', 'field', 'mentoring', 'estimating']);
+  assert.equal(board.mentorAvailableHours, 3);
+  assert.equal(board.alexMentorHours, 2);
+  assert.equal(board.spareMentorHours, 1);
+  assert.equal(board.qualifiedSuccessor, false);
+  assert.ok(board.risks.some(x => /Estimating/.test(x)));
+  assert.ok(board.risks.some(x => /Casey/.test(x)));
+  assert.equal(board.provisional, true);
+});
+test('organisation decision must follow weekly, coverage and succession reviews', () => {
+  const start = initialState();
+  assert.throws(() => confirmOrganisationPlan(start), /Choose a valid organisational response/);
+  assert.throws(() => chooseOrganisationPlan(start, 'unknown'), /Unknown organisational allocation/);
+  const proposed = chooseOrganisationPlan(start, 'jordan');
+  assert.equal(proposed.organisation.confirmed, false);
+  assert.throws(() => confirmOrganisationPlan(proposed), /development, field coverage and succession reviews/);
+  const ready = withContinuity(confirmCoveragePlan(chooseCoveragePlan(withWeeklyReview(start), 'stage')));
+  const confirmed = confirmOrganisationPlan(chooseOrganisationPlan(ready, 'jordan'));
+  assert.equal(confirmed.organisation.confirmed, true);
+  assert.equal(confirmOrganisationPlan(confirmed), confirmed);
+  assert.equal(organisationImpact(confirmed).mentorAvailableHours, 3);
+});
+test('mentor allocation is capped, explained and does not certify Jordan', () => {
+  const prepared = withContinuity(confirmCoveragePlan(chooseCoveragePlan(withWeeklyReview(initialState()), 'stage')));
+  const coachJordan = withOrganisation(prepared, 'jordan');
+  const board = organisationImpact(coachJordan);
+  assert.equal(board.allocatedMentorHours, 3);
+  assert.equal(board.spareMentorHours, 0);
+  assert.equal(board.jordanMentorHours, 1);
+  assert.equal(board.jordanCapacityGap, false);
+  assert.equal(board.qualifiedSuccessor, false);
+  assert.ok(board.risks.some(x => /No spare Morgan mentoring hour/.test(x)));
+  assert.equal(organisationImpact(prepared).allocatedMentorHours, 2);
+});
+test('protecting spare capacity leaves Jordan handover unresourced and blocks the task', () => {
+  const state = withOrganisation(withContinuity(confirmCoveragePlan(chooseCoveragePlan(withReviewedPlanning(initialState()), 'stage'))), 'reserve');
+  const board = organisationImpact(state);
+  assert.equal(board.spareMentorHours, 1);
+  assert.equal(board.jordanCapacityGap, true);
+  assert.ok(board.risks.some(x => /Jordan/.test(x)));
+  assert.equal(decisionChoices(state).find(x => x.id === 'scope').available, false);
+  assert.match(decisionChoices(state).find(x => x.id === 'scope').reason, /Jordan handover lacks/);
+  const revised = withOrganisation(state, 'jordan');
+  assert.equal(decisionChoices(revised).find(x => x.id === 'scope').available, true);
+});
+test('external training is an unverified proposal, not counted as delivered capacity', () => {
+  const prep = withContinuity(confirmCoveragePlan(chooseCoveragePlan(withWeeklyReview(initialState()), 'relief')));
+  const planned = withOrganisation(prep, 'external');
+  const board = organisationImpact(planned);
+  assert.equal(board.jordanMentorHours, 0);
+  assert.equal(board.spareMentorHours, 1);
+  assert.ok(board.risks.some(x => /provider, cost and availability/.test(x)));
+  assert.equal(board.qualifiedSuccessor, false);
+});
+test('organisation choices invalidate previous decisions and must be re-reviewed', () => {
+  const ready = withCoverage(withReviewedPlanning(initialState()));
+  const recorded = decide(ready, 'scope');
+  const switched = chooseOrganisationPlan(recorded, 'reserve');
+  assert.equal(switched.decision, null);
+  assert.equal(switched.organisation.confirmed, false);
+  assert.equal(decisionChoices(switched).find(x => x.id === 'scope').available, false);
+  assert.equal(chooseOrganisationPlan(switched, 'reserve'), switched);
+  assert.equal(decisionChoices(withOrganisation(switched, 'jordan')).find(x=>x.id==='scope').available, true);
+});
+test('changing succession or coverage invalidates organisational approval', () => {
+  const ready = withCoverage(withWeeklyReview(initialState()));
+  assert.equal(ready.organisation.confirmed, true);
+  assert.equal(chooseCoveragePlan(ready, 'relief').organisation.confirmed, false);
+  assert.equal(chooseSuccessionPlan(ready, 'morgan').organisation.confirmed, false);
+  assert.equal(choosePath(ready, 'operations').organisation.option, null);
+  assert.throws(() => chooseOrganisationPlan(choosePath(ready, 'operations'), 'jordan'), /site pathway/);
+});
+test('organisation evidence and open dependencies are exported in the decision memo', () => {
+  const state = withCoverage(withReviewedPlanning(initialState()));
+  const decided = decide(state, 'scope');
+  assert.equal(decided.decision.organisation.confirmed, true);
+  assert.equal(decided.decision.organisation.roles.length, 4);
+  assert.equal(decided.decision.organisation.qualifiedSuccessor, false);
+  const memo = memoText(decided.decision);
+  assert.match(memo, /Organisation-wide response:/);
+  assert.match(memo, /Role coverage — Estimating & scheduling/);
+  assert.match(memo, /Unresolved organisational dependency:/);
+  assert.match(memo, /Mentor allocation: 3\/3h/);
   assert.deepEqual(decide(withCoverage(withReviewedPlanning(initialState())), 'scope'), decided);
 });

@@ -2,7 +2,7 @@
 
 **A practical, skills-first demonstration of people development, managerial judgment and organisational capability.**
 
-**Status: Functional prototype (v0.5 published; v0.6 under review).** The [live Leadership Studio](https://nathantaylorops.github.io/workforce-capability-development/) demonstrates skills-first development, work-based evidence, weekly management review, coverage planning and knowledge continuity. A proposed v0.6 extension connects those decisions to a four-role organisational capacity view. The site updates only after a merged change passes the Pages deployment workflow. This is a fictional portfolio demonstration, **not** a production HR, employee assessment, workforce scheduling or financial system. Direct live-browser and accessibility validation remain outstanding.
+**Status: Functional prototype (v0.6 published; v0.7 feature #13 under review).** The [live Leadership Studio](https://nathantaylorops.github.io/workforce-capability-development/) demonstrates skills-first development, work-based evidence, weekly management review, coverage planning and knowledge continuity. The merged v0.6 adds a four-role organisational capacity view. Proposed [feature #13](https://github.com/NathanTaylorOps/workforce-capability-development/issues/13) adds a bounded hypothetical critical-role absence exercise without granting acting authority. The site updates only after a merged change passes the Pages deployment workflow. This is a fictional portfolio demonstration, **not** a production HR, employee assessment, workforce scheduling or financial system. Direct live-browser and accessibility validation remain outstanding.
 
 ## Experience the prototype
 
@@ -120,10 +120,16 @@ A separately recorded fictional GM handover review is now required before a boun
 
 **Local verification:** 38/38 scenario tests, plus desktop and mobile scripted Chromium walkthroughs, passed. The browser smoke tests used in-memory concatenated modules rather than a hosted ES-module graph. [PR #10](https://github.com/NathanTaylorOps/workforce-capability-development/pull/10) was merged and the v0.5 Pages deployment succeeded; independently checking the full live browser flow remains outstanding. [Assumptions and verification](docs/qa/SUCCESSION_CONTINUITY_V05.md).
 
-## Organisational capacity and key-person dependency in proposed v0.6
+## Organisational capacity and key-person dependency in v0.6
 
 The proposed next slice adds a **four-role fictional organisational view** covering site supervision, field delivery, technical mentoring and estimating/scheduling. The GM can compare protecting contingency mentor time, assigning one additional coached handover to Jordan, or investigating external training support. Mentor capacity is bounded and each option exposes delivery and key-person dependency consequences.
 
 **No option certifies a successor, grants site-supervision authority, or turns an unverified external trainer into available capacity.** The fictional scenario remains single-week and illustrative, not a live staffing planner or business-wide succession model.
 
 **Verification:** 46/46 local Node.js scenario tests and scripted desktop/mobile browser walkthroughs passed on the proposed branch content; GitHub CI, hosted module loading, independent user testing and accessibility validation remain separate gates. [Detailed v0.6 assumptions and test limitations](docs/qa/ORGANISATIONAL_DEPTH_V06.md).
+
+## Proposed v0.7 — Critical-role absence stress test
+
+[Feature #13](https://github.com/NathanTaylorOps/workforce-capability-development/issues/13) lets a portfolio visitor simulate Casey (GM) or Reese (estimator) being unavailable for a fictional week. Every existing responsibility remains visible as **covered**, **partially supported**, or **uncovered**. Technical contribution does not confer supervisory authority; during Casey's absence, new fictional GM approvals are blocked until the baseline is restored. Reset restores the original synthetic fixture.
+
+This is not real-time staff availability information, personnel advice, or evidence of actual authorisation. The change is **not published** until its PR passes owner review, merges and the Pages workflow succeeds. Tests, limits and remaining live-browser checks will be recorded on the PR rather than an additional per-feature status document.

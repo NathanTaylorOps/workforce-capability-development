@@ -94,6 +94,33 @@ export const ORGANISATION_OPTIONS = Object.freeze([
   { id: 'external', title: 'Explore external training support', subtitle: 'Keep the spare hour for contingency while researching a separately funded trainer. External support is not booked or verified.', action: 'Casey to investigate provider suitability, cost, scope and permission before relying on support.' }
 ]);
 
+/** Bounded hypothetical absence events; these are not real staff availability reports. */
+export const ABSENCE_EVENTS = Object.freeze([
+  { id: 'casey', title: 'Casey · GM unavailable', note: 'No authorised acting GM or independent site supervisor is verified.' },
+  { id: 'reese', title: 'Reese · estimator unavailable', note: 'No independently verified estimating or scheduling replacement is recorded.' }
+]);
+/** A tiny responsibility register. Partial support never means full operational cover. */
+export const CRITICAL_RESPONSIBILITIES = Object.freeze([
+  { id: 'site-approval', role: 'supervision', title: 'Approve site safety and escalation decisions', ownerId: 'casey', owner: 'Casey · GM',
+    absentStatus: 'uncovered', absentDetail: 'No other independent site decision authority has been verified.',
+    next: 'Escalate to the organisation’s accountable decision-maker to appoint and verify authorised temporary cover; none is established here.' },
+  { id: 'trade-sequence', role: 'supervision', title: 'Agree tomorrow’s coordinated trade sequence', ownerId: 'casey', owner: 'Casey · GM',
+    absentStatus: 'partial', absentDetail: 'Morgan may contribute technical sequencing input, but cannot assume GM sign-off or independent supervision.',
+    next: 'Arrange an authorised decision-maker to review the draft before any work that requires approval proceeds.' },
+  { id: 'field-work', role: 'field', title: 'Deliver assigned trade work', ownerId: 'alex', owner: 'Alex · field operative',
+    absentStatus: 'uncovered', absentDetail: 'No replacement for Alex’s own assigned work is established in this fixture.',
+    next: 'Replan the field allocation; do not assume replacement hours.' },
+  { id: 'quality-coaching', role: 'mentoring', title: 'Provide practical quality coaching', ownerId: 'morgan', owner: 'Morgan · leading hand',
+    absentStatus: 'uncovered', absentDetail: 'No alternative quality mentor is recorded in the fictional week.',
+    next: 'Protect existing quality checks and make a supervised training plan.' },
+  { id: 'estimates', role: 'estimating', title: 'Prepare and check project estimates', ownerId: 'reese', owner: 'Reese · estimator',
+    absentStatus: 'uncovered', absentDetail: 'Alex’s commercial awareness is not evidence of independent estimating competence or available cover.',
+    next: 'Escalate estimating priorities and verify a suitable estimator before committing bids.' },
+  { id: 'bid-handover', role: 'estimating', title: 'Transfer estimating assumptions into project scheduling', ownerId: 'reese', owner: 'Reese · estimator',
+    absentStatus: 'uncovered', absentDetail: 'A handover method may be documented, but no qualified alternate owner is shown.',
+    next: 'Recover source assumptions and arrange a verified reviewer before approving a new schedule.' }
+]);
+
 export const SCENARIO_ASSUMPTIONS = [
   'Two fictional projects require coordination this week.',
   'The illustrated week includes 32 assigned field-work hours for Alex; this is not a full-time employment assumption.',
@@ -108,6 +135,8 @@ export const SCENARIO_ASSUMPTIONS = [
   'The four organisational role owners and a single-week mentor budget are invented illustrations, not a live staffing roster.',
   'Estimating has one documented owner in this fictional fixture; that does not imply that only one real person could ever perform it.',
   'Allocating the last mentor hour to Jordan funds coached practice only; it does not establish competence or cover site-supervision authority.',
+  'Absence events are hypothetical what-if snapshots; they do not prove real employee availability or appoint an acting manager.',
+  'A colleague preparing technical inputs is only partial support when an independent approval is still missing.',
   'Independent site-supervision authority is not established in the scenario.',
   'Evidence is illustrative; no real-world qualification is assessed.'
 ];

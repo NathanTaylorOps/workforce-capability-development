@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { initialState, hearEmployee, recordWeeklyReview, skillStatus, chooseCoveragePlan, confirmCoveragePlan, chooseSuccessionPlan, confirmSuccessionPlan, successionImpact, chooseOrganisationPlan, confirmOrganisationPlan, organisationImpact, workforceImpact, choosePath, addSampleObservation, reviewEvidence, decisionChoices, decide, rescheduleTraining, recordMentoring, memoText, supportSummary, selectSkill, updateStep, observationsFor } from '../src/engine.js';
+import { absenceImpact, chooseAbsenceEvent, initialState, hearEmployee, recordWeeklyReview, skillStatus, chooseCoveragePlan, confirmCoveragePlan, chooseSuccessionPlan, confirmSuccessionPlan, successionImpact, chooseOrganisationPlan, confirmOrganisationPlan, organisationImpact, workforceImpact, choosePath, addSampleObservation, reviewEvidence, decisionChoices, decide, rescheduleTraining, recordMentoring, memoText, supportSummary, selectSkill, updateStep, observationsFor } from '../src/engine.js';
 
 const withMentor = state => recordMentoring(state);
 const withWeeklyReview = state => recordWeeklyReview(hearEmployee(state), 'handover');
@@ -498,4 +498,97 @@ test('organisation evidence and open dependencies are exported in the decision m
   assert.match(memo, /Unresolved organisational dependency:/);
   assert.match(memo, /Mentor allocation: 3\/3h/);
   assert.deepEqual(decide(withCoverage(withReviewedPlanning(initialState())), 'scope'), decided);
+});
+
+// Issue #13: hypothetical critical-person unavailability, not a live personnel decision.
+test('absence baseline preserves every named task owner without inventing a vacancy', () => {
+  const result = absenceImpact(initialState());
+  assert.equal(result.event, null);
+  assert.equal(result.roles.length, 6);
+  assert.deepEqual([result.covered, result.partial, result.uncovered], [6, 0, 0]);
+  assert.ok(result.roles.every(r => r.status === 'covered' && !r.affected));
+  assert.equal(result.actingManagerVerified, false);
+});
+test('Casey absence exposes site sign-off while technical input is partial only', () => {
+  const result = absenceImpact(chooseAbsenceEvent(initialState(), 'casey'));
+  assert.deepEqual([result.covered, result.partial, result.uncovered], [4, 1, 1]);
+  const authority = result.roles.find(x => x.id === 'site-approval');
+  const drafting = result.roles.find(x => x.id === 'trade-sequence');
+  assert.equal(authority.status, 'uncovered');
+  assert.equal(drafting.status, 'partial');
+  assert.match(drafting.detail, /cannot assume GM sign-off/);
+  assert.match(authority.next, /authorised temporary cover/);
+  assert.equal(authority.accountable, 'No verified acting owner for this task');
+});
+test('Reese absence leaves field work intact and two estimating responsibilities uncovered', () => {
+  const result = absenceImpact(chooseAbsenceEvent(initialState(), 'reese'));
+  assert.deepEqual([result.covered, result.partial, result.uncovered], [4, 0, 2]);
+  const estimation = result.roles.filter(x => x.role === 'estimating');
+  assert.equal(estimation.length, 2);
+  assert.ok(estimation.every(x => x.affected && x.status === 'uncovered'));
+  assert.ok(result.roles.filter(x => x.role !== 'estimating').every(x => x.status === 'covered'));
+});
+test('unknown absence is rejected and cannot remove an arbitrary employee', () => {
+  assert.throws(() => chooseAbsenceEvent(initialState(), 'morgan'), /Unknown hypothetical/);
+  assert.throws(() => chooseAbsenceEvent(initialState(), ''), /Unknown hypothetical/);
+});
+test('absence switching and reset replay exactly, without altering competence or review history', () => {
+  const baseline = withReviewedPlanning(initialState());
+  const original = structuredClone(baseline);
+  const first = chooseAbsenceEvent(baseline, 'casey');
+  const second = chooseAbsenceEvent(first, 'reese');
+  const restored = chooseAbsenceEvent(second, null);
+  assert.deepEqual(absenceImpact(first), absenceImpact(chooseAbsenceEvent(initialState(), 'casey')));
+  assert.deepEqual(absenceImpact(restored), absenceImpact(initialState()));
+  for (const next of [first, second, restored]) {
+    assert.deepEqual(next.observations, original.observations);
+    assert.deepEqual(next.reviews, original.reviews);
+    assert.deepEqual(next.weekly, original.weekly);
+    assert.equal(skillStatus(next, 'planning'), 'supported');
+  }
+  assert.deepEqual(initialState(), initialState());
+});
+test('GM absence forbids new reviews and delegation with no acting manager', () => {
+  let unavailable = chooseAbsenceEvent(initialState(), 'casey');
+  assert.throws(() => recordWeeklyReview(hearEmployee(unavailable), 'handover'), /no authorised acting GM/);
+  assert.throws(() => reviewEvidence(unavailable, 'quality'), /no authorised acting GM/);
+  assert.throws(() => rescheduleTraining(unavailable), /no authorised acting GM/);
+  unavailable = chooseCoveragePlan(unavailable, 'stage');
+  assert.throws(() => confirmCoveragePlan(unavailable), /no authorised acting GM/);
+  assert.equal(decisionChoices(unavailable).filter(x => x.available).length, 0);
+  assert.throws(() => decide(unavailable, 'coach'), /not permitted/);
+  assert.throws(() => decide(unavailable, 'scope'), /not permitted/);
+});
+test('GM absence does not erase prior approvals or manufacture an authorised successor', () => {
+  const ready = withCoverage(withReviewedPlanning(initialState()));
+  assert.equal(decisionChoices(ready).find(x => x.id === 'scope').available, true);
+  const disrupted = chooseAbsenceEvent(ready, 'casey');
+  assert.equal(disrupted.coverage.confirmed, true);
+  assert.equal(disrupted.succession.confirmed, true);
+  assert.equal(disrupted.organisation.confirmed, true);
+  assert.equal(decisionChoices(disrupted).find(x => x.id === 'scope').available, false);
+  assert.match(decisionChoices(disrupted).find(x => x.id === 'scope').reason, /No authorised acting GM/);
+  assert.equal(absenceImpact(disrupted).independentSupervisorVerified, false);
+  const back = chooseAbsenceEvent(disrupted, null);
+  assert.equal(decisionChoices(back).find(x => x.id === 'scope').available, true);
+});
+test('hypothetical event change invalidates previously captured decision and export stays accurate', () => {
+  const baselineDecision = decide(initialState(), 'coach');
+  assert.ok(baselineDecision.decision);
+  const affected = chooseAbsenceEvent(baselineDecision, 'reese');
+  assert.equal(affected.decision, null);
+  const after = decide(affected, 'coach');
+  assert.equal(after.decision.absence.event, 'reese');
+  assert.deepEqual([after.decision.absence.covered, after.decision.absence.uncovered], [4,2]);
+  assert.match(memoText(after.decision), /Reese · estimator unavailable/);
+  assert.match(memoText(after.decision), /Exposed responsibility/);
+  assert.match(memoText(after.decision), /No real absence/);
+});
+test('organisational view reflects unavailable owner rather than claiming covered authority', () => {
+  const casey = organisationImpact(chooseAbsenceEvent(initialState(), 'casey'));
+  const reese = organisationImpact(chooseAbsenceEvent(initialState(), 'reese'));
+  assert.match(casey.roles.find(x => x.id === 'supervision').status, /Unavailable/);
+  assert.match(reese.roles.find(x => x.id === 'estimating').status, /Unavailable/);
+  assert.ok(casey.risks.some(x => x.includes('Hypothetical absence')));
+  assert.equal(casey.qualifiedSuccessor, false);
 });

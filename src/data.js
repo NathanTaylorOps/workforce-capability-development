@@ -195,6 +195,38 @@ export const COVER_REVIEW_OPTIONS = Object.freeze([
   }
 ]);
 
+/** Illustrative management RESPONSES, not a qualified cover pool or an authority grant. */
+export const CONTINUITY_RESPONSES = Object.freeze({
+  casey: Object.freeze([
+    { id: 'stage', title: 'Hold critical approvals and resequence low-risk coordination',
+      action: 'Pause decisions that need GM or site-supervision authority. Shift two illustrative hours of noncritical sequencing into a later work window.',
+      deferredHours: 2, mentorHours: 0, support: 'Morgan can document technical constraints only; no acting GM or supervisory delegation is established.',
+      owner: 'Business owner / authorised governance lead', followUp: 'Verify an authorised acting decision-maker, then review the two deferred hours before restarting.',
+      risk: 'Safety and site approvals remain uncovered; partially supported sequencing cannot be signed off.',
+      assumption: 'Two hours of noncritical coordination could be deferred, subject to checking the actual site programme.' },
+    { id: 'source', title: 'Escalate for authorised interim management cover',
+      action: 'Seek an independently verified interim manager and preserve the existing job records while approval-dependent work stays on hold.',
+      deferredHours: 0, mentorHours: 0, support: 'An external appointment is a sourcing action only; no candidate, hours, credentials or delegation is verified.',
+      owner: 'Business owner / authorised governance lead', followUp: 'Check credentials, delegated decision rights and real availability; replan affected work until an appointment is approved.',
+      risk: 'The interim position is unfilled, site approvals are uncovered and sequencing support is still partial.',
+      assumption: 'A suitable interim manager might be available; the example establishes neither availability nor a cost.' }
+  ]),
+  reese: Object.freeze([
+    { id: 'stage', title: 'Hold affected bids and preserve the estimating handover',
+      action: 'Defer three illustrative hours of estimate and scheduling review until qualified assurance is arranged.',
+      deferredHours: 3, mentorHours: 0, support: 'Alex may share site information but cannot approve commercial estimates or become an estimator by default.',
+      owner: 'Casey · GM', followUp: 'Notify affected stakeholders, document assumptions and set a new qualified review date.',
+      risk: 'Both estimating responsibilities remain uncovered; bid deadlines and scheduling assumptions require human review.',
+      assumption: 'Three hours of noncritical estimating review can be moved; no contractual deadlines have been verified.' },
+    { id: 'source', title: 'Seek qualified estimating support before bids proceed',
+      action: 'Request a scoped estimating reviewer while withholding estimates and schedules that require independent approval.',
+      deferredHours: 0, mentorHours: 0, support: 'Potential external support has no verified credentials, availability, price or contracting approval.',
+      owner: 'Casey · GM', followUp: 'Verify an assessor/reviewer, authorisation, available hours and budget before allocating work.',
+      risk: 'Both estimating responsibilities remain uncovered until a suitable and authorised reviewer is genuinely confirmed.',
+      assumption: 'A qualified reviewer could potentially be sourced; no staffing or financial outcome is implied.' }
+  ])
+});
+
 export const SCENARIO_ASSUMPTIONS = [
   'Two fictional projects require coordination this week.',
   'The illustrated week includes 32 assigned field-work hours for Alex; this is not a full-time employment assumption.',

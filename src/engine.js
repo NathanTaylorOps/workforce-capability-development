@@ -1,4 +1,4 @@
-import { ABSENCE_EVENTS, COVER_REVIEW_OPTIONS, CRITICAL_RESPONSIBILITIES, BASE_OBSERVATIONS, COVERAGE_OPTIONS, SUCCESSION_OPTIONS, ORGANISATION_OPTIONS, ORGANISATION_ROLES, FIXTURE_VERSION, PATHWAYS, SKILLS, WEEKLY_CHECKIN, WORKFORCE_FIXTURE } from './data.js';
+import { ABSENCE_EVENTS, CONTINUITY_RESPONSES, COVER_REVIEW_OPTIONS, CRITICAL_RESPONSIBILITIES, BASE_OBSERVATIONS, COVERAGE_OPTIONS, SUCCESSION_OPTIONS, ORGANISATION_OPTIONS, ORGANISATION_ROLES, FIXTURE_VERSION, PATHWAYS, SKILLS, WEEKLY_CHECKIN, WORKFORCE_FIXTURE } from './data.js';
 
 /** Immutable, deterministic demo state: no real personal records, network or browser storage. */
 export function initialState() {
@@ -17,6 +17,7 @@ export function initialState() {
     organisation: { option: null, confirmed: false },
     absence: { event: null },
     coverReview: { taskId: null, candidateId: null },
+    comparison: { proposed: null, basis: null },
     employeeFeedback: 'Interested in growing, but wants supported practice before leading alone.',
     events: [],
     decision: null
@@ -26,7 +27,7 @@ export function initialState() {
 export function chooseAbsenceEvent(state, eventId) {
   if (eventId !== null && !ABSENCE_EVENTS.some(x => x.id === eventId)) throw new Error('Unknown hypothetical role absence.');
   if (state.absence.event === eventId) return state;
-  return { ...state, absence: { event: eventId }, coverReview: { taskId: null, candidateId: null }, decision: null,
+  return { ...state, absence: { event: eventId }, coverReview: { taskId: null, candidateId: null }, comparison: { proposed: null, basis: null }, decision: null,
     events: [...state.events, { type: 'absence', detail: eventId ?? 'baseline restored' }] };
 }
 /** Explicit tasks and verified owners, not a generic staffing-health rating. */
@@ -87,6 +88,78 @@ export function coverSuitability(state) {
     capacity:{status:'Not verified',confirmedTaskHours:0,unallocatedMentorHours:remaining,detail:capacityDetail},
     preference,canCover:false,outcome:'No authorised replacement established',
     unresolved:[candidate.evidence,candidate.prerequisite,candidate.authority,capacityDetail],next:candidate.next,provisional:true};
+}
+/** Snapshot key guards against carrying a proposal forward after its assumptions change. */
+function continuityBasis(state) {
+  return JSON.stringify({
+    version:state.version,absence:state.absence.event,path:state.path,training:state.training,
+    mentoring:state.mentoring,weekly:state.weekly,coverage:state.coverage,
+    succession:state.succession,organisation:state.organisation,coverReview:state.coverReview,
+    reviews:state.reviews,observations:state.observations
+  });
+}
+/** Pure two-response comparison: alternatives always share an unchanged responsibility baseline. */
+export function continuityComparison(state) {
+  const baseline = absenceImpact(state);
+  const definitions = CONTINUITY_RESPONSES[baseline.event] ?? [];
+  const basis = continuityBasis(state);
+  const proposedId = state.comparison?.basis === basis ? state.comparison.proposed : null;
+  const responses = definitions.map(item => ({
+    ...item, covered:baseline.covered,partial:baseline.partial,uncovered:baseline.uncovered,
+    qualifiedCoverHours:0,authorityGranted:false,
+    note:'Hypothetical planning response only. This does not cover a vacant role or authorise a worker.'
+  }));
+  return {
+    event:baseline.event,label:baseline.label,
+    baseline:{ covered:baseline.covered,partial:baseline.partial,uncovered:baseline.uncovered,
+      tasks:baseline.roles.filter(x=>x.affected).map(x=>({
+        id:x.id,title:x.title,status:x.status,detail:x.detail,next:x.next
+      }))},
+    responses,proposedId:responses.some(x=>x.id===proposedId)?proposedId:null,
+    proposalValid:Boolean(proposedId&&responses.some(x=>x.id===proposedId)),
+    status:'Proposal only — accountable human review and independent authority checks required',
+    limitations:['No verified replacement hours or independent site authority are added.',
+      'Deferred work remains a schedule obligation; zero modelled deferral is not proof work can proceed.',
+      'All characters, time estimates and proposed management options are invented.']
+  };
+}
+/** Select for discussion only: this is NOT a personnel, commercial or safety-critical approval. */
+export function proposeContinuityResponse(state, id) {
+  const current = continuityComparison(state);
+  if (!current.event || !current.responses.some(x=>x.id===id)) throw new Error('Choose a hypothetical absence and one applicable management response.');
+  if (current.proposedId===id) return state;
+  return {...state,comparison:{proposed:id,basis:continuityBasis(state)},decision:null,
+    events:[...state.events,{type:'continuity-proposal',detail:id+' for '+current.event}]};
+}
+/** Export only the current comparison; stale preference is not silently carried forward. */
+export function continuityComparisonRecord(state) {
+  const compared=continuityComparison(state);
+  if (!compared.event || !compared.proposalValid) throw new Error('Select a current response proposal before exporting the comparison.');
+  const selected=compared.responses.find(x=>x.id===compared.proposedId);
+  return {
+    synthetic:true,fixture:state.version,kind:'fictional-continuity-comparison',
+    event:compared.label,baseline:compared.baseline,responses:compared.responses,
+    proposed:{id:selected.id,title:selected.title,owner:selected.owner,followUp:selected.followUp},
+    decisionStatus:'PROPOSAL — not approved, appointed or authorised',
+    independentAuthorityEstablished:false,
+    nextReview:selected.followUp,accountable:selected.owner,
+    assumptions:compared.responses.map(x=>({option:x.id,assumption:x.assumption})),
+    limitations:compared.limitations
+  };
+}
+export function continuityComparisonMemo(record) {
+  if (!record || record.synthetic!==true || record.kind!=='fictional-continuity-comparison') throw new Error('Invalid fictional comparison record.');
+  return [
+    'FICTIONAL WORKFORCE CONTINUITY — UNAPPROVED MANAGEMENT PROPOSAL',
+    'Scenario: '+record.fixture+' · '+record.event,
+    'Same baseline for both responses: '+record.baseline.covered+' covered; '+record.baseline.partial+' partial; '+record.baseline.uncovered+' uncovered.',
+    ...record.responses.map(x=>x.title+': '+x.action+' Deferred '+x.deferredHours+' illustrative hours; '+x.support+' Risk: '+x.risk+' Owner: '+x.owner+' Next: '+x.followUp+' Assumption: '+x.assumption),
+    'PROPOSED for human review: '+record.proposed.title,
+    'Accountable owner: '+record.accountable,
+    'Next review: '+record.nextReview,
+    'No independent authority or replacement hours are verified. No staffing appointment or approval is made.',
+    ...record.limitations
+  ].join('\n');
 }
 function requireGmAvailable(state) {
   if (state.absence.event === 'casey') throw new Error('Casey is unavailable in this hypothetical event; no authorised acting GM is recorded. Restore the baseline before making new GM approvals.');
@@ -366,7 +439,7 @@ export function decide(state, decisionId) {
     fixture: state.version,
     pathway: PATHWAYS[state.path].title,
     action: option.title,
-    summary, next, impact, workforce, succession, organisation, absence: absenceImpact(state), coverReview: coverSuitability(state),
+    summary, next, impact, workforce, succession, organisation, absence: absenceImpact(state), coverReview: coverSuitability(state), continuity: continuityComparison(state),
     known: ['Practical trade quality supported by example observations.', 'Commercial awareness supported by example observations.'],
     unknown: SKILLS.filter(s => skillStatus(state, s.id) === 'unknown').map(s => s.name),
     needsReview: SKILLS.filter(s => skillStatus(state, s.id) === 'review').map(s => s.name),

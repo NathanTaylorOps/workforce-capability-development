@@ -2,7 +2,7 @@
 
 **A practical, skills-first demonstration of people development, managerial judgment and organisational capability.**
 
-**Status: Functional prototype (v0.9 deployed; live-browser verification pending).** The [live Leadership Studio](https://nathantaylorops.github.io/workforce-capability-development/) demonstrates skills-first development, work-based evidence, weekly management review, coverage planning and knowledge continuity. The merged v0.6 adds a four-role organisational capacity view. Proposed [feature #13](https://github.com/NathanTaylorOps/workforce-capability-development/issues/13) adds a bounded hypothetical critical-role absence exercise without granting acting authority. The site updates only after a merged change passes the Pages deployment workflow. This is a fictional portfolio demonstration, **not** a production HR, employee assessment, workforce scheduling or financial system. Direct live-browser and accessibility validation remain outstanding.
+**Status: v0.9 functional prototype deployed and HTTPS-browser smoke-verified; formal v0.9.0 GitHub release awaiting approval.** The [live Leadership Studio](https://nathantaylorops.github.io/workforce-capability-development/) demonstrates a fictional skills-first development journey, work-based evidence, weekly coaching, workforce coverage and succession planning, four-role organisational capacity, critical-role absence stress tests, cover suitability and two-response continuity comparisons. [The successful published-browser run](https://github.com/NathanTaylorOps/workforce-capability-development/actions/runs/38161773855) verified the real module graph and comparison/export journey in desktop and mobile Chromium on deployed commit `8f6da00e4e4a561acf61b61b5e3129f04220d258`. No real staff records are used; this is **not** production HR, employment assessment, real-time scheduling, occupational licensing, site safety sign-off or financial software. Independent accessibility, cross-browser, security and user-acceptance reviews are not claimed.
 
 ## Experience the prototype
 
@@ -87,10 +87,10 @@ It is part of [NathanTaylorOps](https://github.com/NathanTaylorOps)'s operations
 | Repository foundation | Done |
 | Initial discovery, requirements and UX documentation | Drafted and merged; research ongoing |
 | First static leadership scenario | Merged into `main` in [PR #5](https://github.com/NathanTaylorOps/workforce-capability-development/pull/5) |
-| Scenario-rule tests | v0.5 has **38 scenario tests passing**; proposed v0.6 has **46 local tests passing** (branch CI pending); see the latest [Actions checks](https://github.com/NathanTaylorOps/workforce-capability-development/actions/workflows/ci.yml) for branch and deployed `main` verification |
-| Browser interaction testing | Local scripted desktop/mobile flow performed; report below |
-| Public GitHub Pages deployment | GitHub Actions **successful**, [published URL](https://nathantaylorops.github.io/workforce-capability-development/); live browser smoke test still outstanding |
-| Independent reviewer / accessibility and release validation | Not yet completed |
+| Scenario-rule tests | **71/71** scenario unit tests passed on the shipped v0.9 baseline; see [GitHub Actions verification](https://github.com/NathanTaylorOps/workforce-capability-development/actions/runs/38161750331). Older version-specific counts below are historical snapshots. |
+| Browser interaction testing | Real hosted HTTPS Chromium smoke test **passed on desktop and mobile**: [workflow #38161773855](https://github.com/NathanTaylorOps/workforce-capability-development/actions/runs/38161773855). It checks actual JS/CSS loading, keyboard skip-link, continuity comparison, exports and overflow; it is not a formal WCAG audit. |
+| Public GitHub Pages deployment | **Successful** for `8f6da00`: [published site](https://nathantaylorops.github.io/workforce-capability-development/) and [deployment evidence](https://github.com/NathanTaylorOps/workforce-capability-development/actions/runs/38161750334). |
+| Independent reviewer / accessibility / security audit | Not completed; browser smoke and automated unit tests are limited engineering checks. First formal GitHub release/tag remains subject to owner approval. |
 
 **Maintainer:** [NathanTaylorOps](https://github.com/NathanTaylorOps). No external contributors or independent reviews are claimed.
 
@@ -102,7 +102,7 @@ The v0.2 workflow requires a completed fictional mentoring session before simula
 
 The fictional week-two check-in shows work indicators **with limitations**, mentor feedback, a pre-written employee perspective, the organisation's outstanding support commitments and three different manager follow-up actions. The manager must hear Alex before recording a review. The selected action records its owner, milestone and next review, and flows into the eventual decision memo. A limited site-planning assignment also requires an agreed coached-handover development action, independently demonstrated planning tasks and an explicit fictional GM evidence review. No KPI or check-in independently grants competence, credentials or work authority.
 
-**Verification scope:** 23/23 scenario tests pass locally. Desktop and mobile browser interaction smoke tests used the actual HTML/CSS and a temporary, in-memory concatenation of the three application modules because local HTTP navigation is blocked in the verification environment. The deployed module graph and full live-site browser walkthrough still need verification after merge. [Test plan and limitations](docs/qa/WEEKLY_REVIEW_V03.md).
+**Verification scope:** 23/23 scenario tests pass locally. Desktop and mobile browser interaction smoke tests used the actual HTML/CSS and a temporary, in-memory concatenation of the three application modules because local HTTP navigation is blocked in the verification environment. This was a historical local test limitation; the later [v0.9 actual published-browser flow](https://github.com/NathanTaylorOps/workforce-capability-development/actions/runs/38161773855) passed on desktop and mobile. The full application is not exhaustively UI-tested. [Test plan and limitations](docs/qa/WEEKLY_REVIEW_V03.md).
 
 ## Workforce capacity and succession in v0.4
 
@@ -110,7 +110,7 @@ The fictional GM now explicitly plans how four hours of Alex's existing field as
 
 The decision memo and outcome show field work retained, relief hours, deferred work, mentor availability, continuing GM accountability and the absence of an independently authorised supervisor successor. Changing a coverage choice invalidates any older decision.
 
-**Verification before PR review:** 30/30 local scenario tests and scripted desktop/mobile Chromium walkthroughs passed using in-memory concatenated JavaScript modules. Actual live ES-module loading, independent usability review and formal accessibility audit remain outstanding. [Scope, assumptions and verification](docs/qa/WORKFORCE_COVERAGE_V04.md).
+**Verification before PR review:** 30/30 local scenario tests and scripted desktop/mobile Chromium walkthroughs passed using in-memory concatenated JavaScript modules. At this historical stage, actual live ES-module loading was untested; a subsequent [v0.9 published-browser verification](https://github.com/NathanTaylorOps/workforce-capability-development/actions/runs/38161773855) passed. Independent usability and formal accessibility audits remain outstanding. [Scope, assumptions and verification](docs/qa/WORKFORCE_COVERAGE_V04.md).
 
 ## Succession readiness and continuity in v0.5
 
@@ -118,32 +118,32 @@ The GM must also decide how to protect supervisory knowledge and prepare an appr
 
 A separately recorded fictional GM handover review is now required before a bounded planning assignment can proceed. **None of these choices establishes an authorised independent supervisor**. Site accountability stays with the GM; a planned handover does not fill a vacancy. The outcome and exported decision memo preserve the chosen strategy, remaining evidence gaps and risks.
 
-**Local verification:** 38/38 scenario tests, plus desktop and mobile scripted Chromium walkthroughs, passed. The browser smoke tests used in-memory concatenated modules rather than a hosted ES-module graph. [PR #10](https://github.com/NathanTaylorOps/workforce-capability-development/pull/10) was merged and the v0.5 Pages deployment succeeded; independently checking the full live browser flow remains outstanding. [Assumptions and verification](docs/qa/SUCCESSION_CONTINUITY_V05.md).
+**Local verification:** 38/38 scenario tests, plus desktop and mobile scripted Chromium walkthroughs, passed. The browser smoke tests used in-memory concatenated modules rather than a hosted ES-module graph. [PR #10](https://github.com/NathanTaylorOps/workforce-capability-development/pull/10) was merged and the v0.5 Pages deployment succeeded; the later [published v0.9 comparison flow](https://github.com/NathanTaylorOps/workforce-capability-development/actions/runs/38161773855) has now been tested in real desktop/mobile Chromium. Full-product usability and accessibility audits are still outstanding. [Assumptions and verification](docs/qa/SUCCESSION_CONTINUITY_V05.md).
 
 ## Organisational capacity and key-person dependency in v0.6
 
-The proposed next slice adds a **four-role fictional organisational view** covering site supervision, field delivery, technical mentoring and estimating/scheduling. The GM can compare protecting contingency mentor time, assigning one additional coached handover to Jordan, or investigating external training support. Mentor capacity is bounded and each option exposes delivery and key-person dependency consequences.
+The delivered v0.6 slice adds a **four-role fictional organisational view** covering site supervision, field delivery, technical mentoring and estimating/scheduling. The GM can compare protecting contingency mentor time, assigning one additional coached handover to Jordan, or investigating external training support. Mentor capacity is bounded and each option exposes delivery and key-person dependency consequences.
 
 **No option certifies a successor, grants site-supervision authority, or turns an unverified external trainer into available capacity.** The fictional scenario remains single-week and illustrative, not a live staffing planner or business-wide succession model.
 
-**Verification:** 46/46 local Node.js scenario tests and scripted desktop/mobile browser walkthroughs passed on the proposed branch content; GitHub CI, hosted module loading, independent user testing and accessibility validation remain separate gates. [Detailed v0.6 assumptions and test limitations](docs/qa/ORGANISATIONAL_DEPTH_V06.md).
+**Historical verification:** 46/46 local Node.js scenario tests and scripted desktop/mobile browser walkthroughs passed on the v0.6 development branch. GitHub CI and Pages deployment subsequently passed; v0.9 published-module testing later passed, while independent user and accessibility reviews remain outstanding. [Detailed v0.6 assumptions and test limitations](docs/qa/ORGANISATIONAL_DEPTH_V06.md).
 
-## Proposed v0.7 — Critical-role absence stress test
+## Critical-role absence stress test in v0.7
 
 [Feature #13](https://github.com/NathanTaylorOps/workforce-capability-development/issues/13) lets a portfolio visitor simulate Casey (GM) or Reese (estimator) being unavailable for a fictional week. Every existing responsibility remains visible as **covered**, **partially supported**, or **uncovered**. Technical contribution does not confer supervisory authority; during Casey's absence, new fictional GM approvals are blocked until the baseline is restored. Reset restores the original synthetic fixture.
 
-This is not real-time staff availability information, personnel advice, or evidence of actual authorisation. The change is **not published** until its PR passes owner review, merges and the Pages workflow succeeds. Tests, limits and remaining live-browser checks will be recorded on the PR rather than an additional per-feature status document.
+This is not real-time staff availability information, personnel advice, or evidence of actual authorisation. This feature was delivered through [PR #16](https://github.com/NathanTaylorOps/workforce-capability-development/pull/16), merged and published. The separate v0.9 browser workflow later verified the role-absence journey on the live site.
 
 
-## Continuity decision comparison — proposed v0.9
+## Continuity decision comparison in v0.9
 
 [Feature #15](https://github.com/NathanTaylorOps/workforce-capability-development/issues/15) adds a two-response comparison for the same Casey or Reese hypothetical absence. Both responses retain **exactly the same exposure baseline**; options differ only in illustrative work deferral, sourcing and human follow-up. No candidate, qualified hours or authority are automatically added. The visitor can propose an option for external human review, then export a clearly unapproved fictional comparison record. This is **not** a staffing, hiring, safety or commercial approval.
 
-The issue/PR conversation holds evolving requirements and verification evidence; durable scenario assumptions remain alongside the code. The feature is not available on the public Pages site until owner approval, merge and successful deployment.
+The issue/PR conversation holds evolving requirements and verification evidence; durable scenario assumptions remain alongside the code. This feature was delivered through [PR #18](https://github.com/NathanTaylorOps/workforce-capability-development/pull/18), approved by the owner, merged and published; the real deployed comparison and export flow passed browser smoke testing.
 
 
 ## Published-site functional smoke test — release gate #19
 
-The [release-gate issue #19](https://github.com/NathanTaylorOps/workforce-capability-development/issues/19) tracks an actual **HTTPS, browser-executed** end-to-end check rather than only local in-memory simulations. [GitHub Actions](.github/workflows/live-smoke.yml) will launch Chromium against the deployed Pages URL after successful publication, checking that real JavaScript modules load, the visitor can navigate to Step 5, compare Casey and Reese absences, preserve identical role exposure in both alternatives, export an unapproved fictional comparison, and use the mobile layout without horizontal overflow. The workflow checks the published version against the deploying commit and captures failure evidence.
+The [release-gate issue #19](https://github.com/NathanTaylorOps/workforce-capability-development/issues/19) tracks an actual **HTTPS, browser-executed** end-to-end check rather than only local in-memory simulations. [GitHub Actions](.github/workflows/live-smoke.yml) launches Chromium against the deployed Pages URL after successful publication, checking that real JavaScript modules load, the visitor can navigate to Step 5, compare Casey and Reese absences, preserve identical role exposure in both alternatives, export an unapproved fictional comparison, and use the mobile layout without horizontal overflow. The workflow checks the published version against the deploying commit and captures failure evidence.
 
-**Publication of this workflow is not evidence that it passed.** Keep milestone #12 open until a completed GitHub Actions run against the real HTTPS site succeeds. The automated scenario remains fictional and does not constitute a formal WCAG/accessibility audit, user acceptance test, role-authorisation check or personnel-management certification.
+**Verified successful published run:** [#38161773855](https://github.com/NathanTaylorOps/workforce-capability-development/actions/runs/38161773855), confirming real desktop and mobile flows; [milestone #12](https://github.com/NathanTaylorOps/workforce-capability-development/issues/12) is complete. The automated scenario remains fictional and does not constitute a formal WCAG/accessibility audit, user acceptance test, role-authorisation check or personnel-management certification.

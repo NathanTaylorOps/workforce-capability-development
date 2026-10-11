@@ -18,6 +18,14 @@ jobs:
       - name: Syntax and scenario unit tests
         run: npm run check
       - name: Check published-browser smoke script syntax
-        run: node --check tests/live-smoke.mjs
+        run: node --check tests/live-smoke.mjs && node --check tests/entry-smoke.mjs
       - name: Confirm static entrypoint exists
-        run: test -f index.html && test -f styles.css && test -f src/app.js
+        run: test -f index.html && test -f styles.css && test -f src/app.js && test -f src/overview.js
+      - name: Exercise preview in desktop and mobile Chromium
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/studio-http.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" || true' EXIT
+          LOCAL_SITE_URL=http://127.0.0.1:8765/ node tests/entry-smoke.mjs

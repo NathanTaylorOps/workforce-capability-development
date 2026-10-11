@@ -95,13 +95,16 @@ async function scenario(viewport, name) {
   page.on('dialog', dialog=>dialog.accept());
   try {
     await loadPublishedPage(page);
-    assert.match(await page.locator('#page-title').innerText(), /Better decisions start/);
+    assert.match(await page.locator('#page-title').innerText(), /Develop capability without leaving the work exposed/);
+    assert.equal(await page.locator('.overview-principle').count(), 3);
     assert.ok((await page.locator('main').count())===1);
 
     // The skip-link is the first keyboard target; visit the main region with Enter.
     await page.keyboard.press('Tab');
     assert.equal(await page.locator('.skip-link').evaluate(el=>el===document.activeElement), true);
     await page.keyboard.press('Enter');
+    await page.locator('.overview-actions button[data-action="enter-scenario"]').click();
+    assert.match(await page.locator('#page-title').innerText(), /Better decisions start/);
 
     // Use real visible progression controls, not direct engine calls or in-memory scripts.
     for (const next of [1,2,3,4]) {
@@ -126,6 +129,10 @@ async function scenario(viewport, name) {
     await page.locator('button[data-action="absence"][data-value="none"]').click();
     assert.equal(await page.locator('.compare-card').count(), 0, 'Baseline should hide comparison');
     assert.equal(await page.locator('button[data-action="download-comparison"]').count(),0);
+    await page.locator('.top-actions button[data-action="show-overview"]').click();
+    assert.match(await page.locator('#page-title').innerText(), /Develop capability without leaving the work exposed/);
+    await page.locator('.overview-start button[data-action="enter-scenario"]').click();
+    assert.match(await page.locator('#page-title').innerText(), /considered decision/);
 
     const width=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
     assert.ok(width.scroll <= width.client + 2, name+': horizontal overflow '+JSON.stringify(width));

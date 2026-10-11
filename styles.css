@@ -145,3 +145,28 @@
 @media(max-width:940px){.overview-grid{grid-template-columns:1fr}.overview-principles{grid-template-columns:1fr}.overview-start{flex-direction:column;align-items:flex-start}.overview-case{padding:22px}}
 @media(max-width:780px){.topbar .fiction-pill{display:none}.top-actions .btn{padding:9px 11px;font-size:.73rem}.overview-layout{padding:20px 17px 45px}.overview-hero{padding:24px 20px}.overview-copy h1{font-size:clamp(2rem,9vw,2.65rem)}.overview-actions .btn{width:100%}.overview-start{padding:25px 21px}.overview-start .btn{width:100%}}
 @media(max-width:400px){.topbar .top-actions{gap:4px}.topbar .top-actions .btn{padding:8px 9px}.overview-facts dt{max-width:55%}}
+
+
+/* Comparing two complete decisions from a common fictional fixture. */
+.run-panel{margin:25px 0;padding:27px;min-width:0}
+.run-panel h2{font-size:1.58rem;margin:12px 0}.run-panel>p{font-size:.88rem;color:#4e6268}
+.run-compare-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;margin:21px 0}
+.run-route{border:1px solid #d5e3df;border-radius:13px;background:#f9fcfa;padding:20px;min-width:0}
+.run-route h3{margin:11px 0 15px;font-size:1.1rem}
+.run-metrics{margin:0}.run-metrics>div{border-top:1px solid #e0e8e5;padding:10px 0}
+.run-metrics dt{font-size:.74rem;color:#587069}.run-metrics dd{font-size:.83rem;font-weight:640;margin:5px 0 0;overflow-wrap:anywhere}
+.run-difference-list{border:1px solid #e3eae8;border-radius:13px;padding:19px;margin:18px 0;background:#fff}
+.run-difference-list ul{margin:0;padding:0;list-style:none}.run-difference-list li{border-top:1px solid #e8eeeb;padding:14px 0}
+.run-difference-list li>strong{font-size:.85rem}.run-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:7px}
+.run-values span{font-size:.8rem;color:#38524a;overflow-wrap:anywhere}
+.run-difference-list li p{font-size:.77rem;color:var(--muted);margin:7px 0 0}
+.run-unchanged{font-size:.79rem;color:#586c63;margin:16px 0 0}
+.run-boundary{background:#fff9ee;border:1px solid #e6dac4;border-radius:11px;padding:14px 16px;font-size:.81rem!important;color:#6a522a!important}
+.run-actions{display:flex;gap:10px;flex-wrap:wrap}
+.decision-jump{display:flex;flex-wrap:wrap;align-items:center;gap:9px;border:1px solid var(--border);background:#fff;border-radius:12px;padding:14px 17px;margin:17px 0}
+.decision-jump>span{font-weight:700;font-size:.75rem;color:var(--muted);margin-right:6px}
+.decision-jump a{border-radius:8px;background:#edf5f1;padding:8px 10px;font-size:.78rem;font-weight:650;text-decoration:none}
+.decision-jump a:hover{text-decoration:underline}
+.decision-section{scroll-margin-top:18px;min-width:0}
+@media(max-width:850px){.run-compare-columns{grid-template-columns:1fr}}
+@media(max-width:550px){.run-panel{padding:17px}.run-route{padding:16px}.run-difference-list{padding:15px}.run-values{grid-template-columns:1fr;gap:5px}.run-actions .btn{width:100%}.decision-jump{padding:12px}}

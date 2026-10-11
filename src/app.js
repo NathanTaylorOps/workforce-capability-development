@@ -1,9 +1,13 @@
 import { overview } from './overview.js';
+import {captureManagementRun,compareManagementRuns} from './management-comparison.js';
+import {managementRunPanel} from './management-compare-view.js';
 import { ABSENCE_EVENTS, COVERAGE_OPTIONS, SUCCESSION_OPTIONS, ORGANISATION_OPTIONS, PATHWAYS, SCENARIO_ASSUMPTIONS, SCENARIO_NAME, SKILLS, STEPS, WEEKLY_CHECKIN, WORKFORCE_FIXTURE } from './data.js';
 import { continuityComparison, proposeContinuityResponse, continuityComparisonRecord, continuityComparisonMemo, absenceImpact, coverSuitability, chooseCoverCandidate, chooseCoverTask, addSampleObservation, chooseAbsenceEvent, chooseCoveragePlan, choosePath, chooseSuccessionPlan, chooseOrganisationPlan, confirmOrganisationPlan, organisationImpact, confirmCoveragePlan, confirmSuccessionPlan, decide, decisionChoices, hearEmployee, initialState, memoText, observationsFor, recordMentoring, recordWeeklyReview, rescheduleTraining, reviewEvidence, selectSkill, skillById, skillStatus, skillStatusLabel, successionImpact, supportSummary, updateStep, workforceImpact } from './engine.js';
 
 let state = initialState();
 let view = 'overview';
+let firstManagementRun = null;
+let showManagementComparison = false;
 let notice = '';
 const root = document.getElementById('app');
 const safe = input => String(input).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
@@ -210,12 +214,13 @@ function decision() {
   return `${heading('05 · DECIDE WITH ACCOUNTABILITY', 'A considered decision is better than a fast one.', 'Choose an action that respects Alex’s preference, the actual evidence and the business’s responsibility for quality and safety.')}
     <div class="decision-context"><div><span class="overline">CHOSEN DEVELOPMENT PATH</span><strong>${safe(activePath().title)}</strong><span>Alex has asked for guided progression, not an unsupported appointment.</span></div><div><span class="overline">IMPORTANT LIMIT</span><strong>Independent supervision restricted</strong><span>Relevant authority and leadership requirements remain unverified.</span></div></div>
     <div class="decision-review-status ${state.weekly.record ? 'review-complete' : 'review-incomplete'}"><strong>${state.weekly.record ? 'Weekly review recorded' : 'Weekly development review not yet recorded'}</strong><p>${state.weekly.record ? safe(state.weekly.record.action + ' · Next: ' + state.weekly.record.milestone) : 'Before considering a bounded planning responsibility, return to Step 3 to hear Alex and document an agreed development action.'}</p></div>
-    ${coveragePlanner()}
-    ${successionPlanner()}
-    ${organisationPlanner()}
-    ${absenceStressTest()}
-    ${continuityResponsePanel()}
-    <div class="decision-options">${decisionChoices(state).map(c=>`<div class="decision-card ${c.available?'':'decision-disabled'}"><div class="decision-symbol">${c.id==='coach'?'↻':c.id==='scope'?'↗':c.id==='redirect'?'⇄':'×'}</div><div class="decision-copy"><h3>${safe(c.title)}</h3><p>${safe(c.description)}</p>${!c.available?`<div class="blocked-reason"><span aria-hidden="true">⊘</span> ${safe(c.reason)}</div>`:''}</div>${button(c.available?'Choose action →':'Not permitted','decide',c.id,c.available?'primary':'outline',c.available?'':'disabled aria-disabled="true"')}</div>`).join('')}</div>
+    <nav class="decision-jump" aria-label="Management decision topics"><span>Review:</span><a href="#field-cover">Field cover</a><a href="#succession-review">Succession</a><a href="#organisation-review">Resources</a><a href="#absence-review">Critical roles</a><a href="#absence-responses">Continuity options</a><a href="#decision-actions">Final decision</a></nav>
+    <div id="field-cover" class="decision-section">${coveragePlanner()}</div>
+    <div id="succession-review" class="decision-section">${successionPlanner()}</div>
+    <div id="organisation-review" class="decision-section">${organisationPlanner()}</div>
+    <div id="absence-review" class="decision-section">${absenceStressTest()}</div>
+    <div id="absence-responses" class="decision-section">${continuityResponsePanel()}</div>
+    <div id="decision-actions" class="decision-options decision-section">${decisionChoices(state).map(c=>`<div class="decision-card ${c.available?'':'decision-disabled'}"><div class="decision-symbol">${c.id==='coach'?'↻':c.id==='scope'?'↗':c.id==='redirect'?'⇄':'×'}</div><div class="decision-copy"><h3>${safe(c.title)}</h3><p>${safe(c.description)}</p>${!c.available?`<div class="blocked-reason"><span aria-hidden="true">⊘</span> ${safe(c.reason)}</div>`:''}</div>${button(c.available?'Choose action →':'Not permitted','decide',c.id,c.available?'primary':'outline',c.available?'':'disabled aria-disabled="true"')}</div>`).join('')}</div>
     <div class="note-box"><span class="note-icon">i</span><p><strong>Human decision required:</strong> This is a controlled educational simulation. In a real workplace, assessor scope, company policy, work health and safety duties, and employment obligations must be verified independently.</p></div>
     ${progressButtons({next:false})}`;
 }
@@ -225,6 +230,7 @@ function outcome() {
   const d=state.decision;
   return `${heading('06 · REVIEW THE OUTCOME', 'A decision you can explain.', 'Good leadership makes responsibilities, uncertainty and follow-through visible. This record is reproducible from the same fictional scenario choices.')}
     <section class="surface-card outcome-card"><div class="outcome-head"><div class="outcome-icon">✓</div><div><span class="overline">FICTIONAL DECISION RECORDED</span><h3>${safe(d.action)}</h3><p>${safe(d.summary)}</p></div></div><div class="outcome-grid"><div><span class="text-label">WHAT WE KNOW</span><p>${safe(d.known.join(' '))}</p></div><div><span class="text-label">WHAT REMAINS UNKNOWN</span><p>${safe(d.unknown.join(', ')||'No unobserved requirements recorded.')}</p></div><div><span class="text-label">OPERATIONAL CONSEQUENCE</span><p>${safe(d.impact)}</p></div><div><span class="text-label">NEXT MANAGEMENT ACTION</span><p>${safe(d.next)}</p></div></div><section class="surface-card workforce-outcome" aria-labelledby="workforce-outcome-heading"><span class="overline">TEAM COVERAGE & SUCCESSION</span><h3 id="workforce-outcome-heading">What changed for the business?</h3><div class="coverage-metrics"><div><strong>${d.workforce.alexFieldHours}h</strong><small>Alex on field assignments</small></div><div><strong>${d.workforce.reliefHours}h</strong><small>Fictional relief</small></div><div><strong>${d.workforce.deferredHours}h</strong><small>Deferred field work</small></div></div><p><strong>Ownership:</strong> ${safe(d.workforce.coordinationOwner)}</p><p><strong>Succession approach:</strong> ${safe(d.succession.approach)} · ${d.succession.confirmed ? "Fictional GM handover plan recorded" : "No GM handover review"}</p><p><strong>Knowledge transfer:</strong> ${safe(d.succession.handover)}</p><p><strong>Next review:</strong> ${safe(d.succession.next)}</p><p><strong>Unresolved risk:</strong> ${safe(d.succession.risk)}</p><div class="absence-outcome"><span class="text-label">CRITICAL-ROLE ABSENCE · WHAT-IF</span><p><strong>${safe(d.absence.label)}</strong> — ${d.absence.covered} covered, ${d.absence.partial} partially supported, ${d.absence.uncovered} uncovered fictional responsibilities.</p><p>Missing permission or replacement capacity cannot be inferred from mentoring or role titles.</p>${d.coverReview?.selected?`<p><strong>Prospect examined:</strong> ${safe(d.coverReview.selected.name)} · ${safe(d.coverReview.outcome)} · <strong>next:</strong> ${safe(d.coverReview.next)}</p>`:''}</div><div class="organisation-outcome"><span class="text-label">ORGANISATIONAL DEPTH</span><p><strong>${safe(d.organisation.approach)}</strong> · ${d.organisation.confirmed ? "Fictional GM review recorded" : "Not confirmed"}</p><p>Mentor time: ${d.organisation.allocatedMentorHours}/${d.organisation.mentorAvailableHours} hours; Jordan: ${d.organisation.jordanMentorHours}h; spare: ${d.organisation.spareMentorHours}h</p><ul>${d.organisation.risks.map(risk=>`<li>${safe(risk)}</li>`).join("")}</ul></div><p class="review-footnote">The hours and options are made-up teaching assumptions, not a staff roster or financial forecast. Scope is limited to this decision, and site authority is unchanged.</p></section><div class="weekly-result outcome-weekly"><span class="text-label">WEEKLY DEVELOPMENT REVIEW</span><strong>${d.weeklyReview ? safe(d.weeklyReview.action) : 'Not recorded'}</strong><p>${d.weeklyReview ? safe(d.weeklyReview.owner + ' · ' + d.weeklyReview.milestone) : 'Record employee input and a management action on Step 3.'}</p></div><div class="outcome-end"><div><span class="text-label">EMPLOYEE PERSPECTIVE</span><p>“${safe(d.employeeVoice)}”</p></div><div class="outcome-buttons">${button('Copy decision memo','copy','','outline')}${button('Download JSON','download','','quiet')}</div></div></section>
+    ${managementRunPanel({first:firstManagementRun,state,visible:showManagementComparison,button,safe})}
     <div class="reflection-grid"><div class="reflection"><span>01</span><h3>Skills over titles</h3><p>Experience and evidence count, even when the person has not followed a conventional ladder.</p></div><div class="reflection"><span>02</span><h3>Support is mutual</h3><p>Manager commitments and training delays belong in the review alongside employee milestones.</p></div><div class="reflection"><span>03</span><h3>Authority is separate</h3><p>Neither attendance nor competence automatically creates delegated responsibilities.</p></div></div><div class="final-controls">${button('↺ Try a different approach','reset','','outline')}${button('← Revisit your decision','step','4','quiet')}</div>`;
 }
 function liveBrief() {
@@ -244,6 +250,15 @@ function pageContent() {return [brief, pathway, plan, evidence, decision, outcom
 function render({ focusMain = false }={}) {
   root.innerHTML = view === 'overview' ? `${topbar()}${overview()}${footer()}` : `${topbar()}<div class="workspace">${sidebar()}<main id="main" class="content" tabindex="-1" aria-labelledby="page-title">${notice?`<div class="toast" role="status">${safe(notice)}</div>`:''}<div class="mobile-progress">STEP ${String(state.step+1).padStart(2,'0')} OF ${STEPS.length} · ${safe(STEPS[state.step].title)}</div>${pageContent()}</main>${liveBrief()}</div>${footer()}`;
   if (focusMain) root.querySelector('#main')?.focus({preventScroll: true});
+}
+function downloadManagementRuns() {
+  if (!firstManagementRun || !showManagementComparison || !state.decision) throw new Error('Complete both fictional decisions before exporting the comparison.');
+  const report=compareManagementRuns(firstManagementRun,captureManagementRun(state,2));
+  const blob=new Blob([JSON.stringify(report,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement('a');
+  link.href=url; link.download='fictional-management-decision-comparison.json'; link.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 function downloadComparison() {
   const record = continuityComparisonRecord(state);
@@ -272,8 +287,19 @@ root.addEventListener('click', async event => {
       case 'enter-scenario': view = 'scenario'; focusMain = true; break;
       case 'show-overview': view = 'overview'; focusMain = true; break;
       case 'reset':
-        if (state.events.length && !window.confirm('Reset this fictional scenario? All current choices and observations will be cleared.')) return;
-        state = initialState(); focusMain = true; break;
+        if ((state.events.length || firstManagementRun) && !window.confirm('Reset this fictional scenario? All current choices and saved decisions will be cleared.')) return;
+        state=initialState(); firstManagementRun=null; showManagementComparison=false; focusMain=true; break;
+      case 'save-first-management-run':
+        firstManagementRun=captureManagementRun(state,1);
+        state=initialState(); showManagementComparison=false; focusMain=true; break;
+      case 'compare-management-runs':
+        if (!firstManagementRun) throw new Error('Save the first decision before comparing.');
+        compareManagementRuns(firstManagementRun,captureManagementRun(state,2));
+        showManagementComparison=true; focusMain=true; break;
+      case 'download-management-runs': downloadManagementRuns(); notice='Fictional decision comparison downloaded.'; break;
+      case 'retry-management-run':
+        if (!firstManagementRun) throw new Error('Save the first management decision before trying another approach.');
+        state=initialState(); showManagementComparison=false; focusMain=true; break;
       case 'step': state = updateStep(state, Number(value)); focusMain = true; break;
       case 'path': state = choosePath(state, value); break;
       case 'skill': state = selectSkill(state, value); break;
@@ -298,7 +324,7 @@ root.addEventListener('click', async event => {
       case 'training': state = rescheduleTraining(state); notice = 'Fictional manager support commitment rescheduled.'; break;
       case 'observe': state = addSampleObservation(state, value); notice = 'A pre-written, independent fictional task observation was added for review.'; break;
       case 'review': state = reviewEvidence(state, value); notice = 'Fictional GM evidence review recorded; this is not a professional certification.'; break;
-      case 'decide': state = decide(state, value); focusMain = true; break;
+      case 'decide': state = decide(state, value); showManagementComparison=false; focusMain = true; break;
       case 'copy':
         if (!state.decision) break;
         if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable. Download JSON instead.');

@@ -1,5 +1,5 @@
 import { ABSENCE_EVENTS, COVERAGE_OPTIONS, SUCCESSION_OPTIONS, ORGANISATION_OPTIONS, PATHWAYS, SCENARIO_ASSUMPTIONS, SCENARIO_NAME, SKILLS, STEPS, WEEKLY_CHECKIN, WORKFORCE_FIXTURE } from './data.js';
-import { absenceImpact, coverSuitability, chooseCoverCandidate, chooseCoverTask, addSampleObservation, chooseAbsenceEvent, chooseCoveragePlan, choosePath, chooseSuccessionPlan, chooseOrganisationPlan, confirmOrganisationPlan, organisationImpact, confirmCoveragePlan, confirmSuccessionPlan, decide, decisionChoices, hearEmployee, initialState, memoText, observationsFor, recordMentoring, recordWeeklyReview, rescheduleTraining, reviewEvidence, selectSkill, skillById, skillStatus, skillStatusLabel, successionImpact, supportSummary, updateStep, workforceImpact } from './engine.js';
+import { continuityComparison, proposeContinuityResponse, continuityComparisonRecord, continuityComparisonMemo, absenceImpact, coverSuitability, chooseCoverCandidate, chooseCoverTask, addSampleObservation, chooseAbsenceEvent, chooseCoveragePlan, choosePath, chooseSuccessionPlan, chooseOrganisationPlan, confirmOrganisationPlan, organisationImpact, confirmCoveragePlan, confirmSuccessionPlan, decide, decisionChoices, hearEmployee, initialState, memoText, observationsFor, recordMentoring, recordWeeklyReview, rescheduleTraining, reviewEvidence, selectSkill, skillById, skillStatus, skillStatusLabel, successionImpact, supportSummary, updateStep, workforceImpact } from './engine.js';
 
 let state = initialState();
 let notice = '';
@@ -167,6 +167,43 @@ function absenceStressTest() {
     <p class="review-footnote">All people, tasks and scenarios are invented. No real absence, credential, contractual delegation, or verified availability is being asserted. Reset restores the original fixture.</p>
   </section>`;
 }
+function continuityResponsePanel() {
+  const comparison = continuityComparison(state);
+  if (!comparison.event) return '';
+  return `<section class="surface-card compare-card" aria-labelledby="compare-title">
+    <div class="card-head"><div><span class="overline">SAME BASELINE · TWO MANAGEMENT RESPONSES</span><h3 id="compare-title">What could the manager propose next?</h3></div><span class="pill pill-neutral">No approval granted</span></div>
+    <p>Compare two approaches to the <strong>same hypothetical absence</strong>. The original responsibilities and their coverage status do not change in either column. Selecting a response records a proposal for accountable human review, not staffing or work authorisation.</p>
+    <div class="compare-baseline" role="status" aria-label="Shared fictional responsibility baseline">
+      <strong>${safe(comparison.label)}</strong>
+      <span>${comparison.baseline.covered} covered</span><span>${comparison.baseline.partial} partially supported</span><span>${comparison.baseline.uncovered} uncovered</span>
+    </div>
+    <div class="compare-columns">
+    ${comparison.responses.map(item=>`<article class="compare-response ${comparison.proposedId===item.id?'compare-proposed':''}">
+      <span class="overline">${item.id==='stage'?'RESPONSE A':'RESPONSE B'}</span>
+      <h4>${safe(item.title)}</h4>
+      <p>${safe(item.action)}</p>
+      <dl>
+        <div><dt>Still uncovered</dt><dd>${item.uncovered} responsibilities</dd></div>
+        <div><dt>Partial support</dt><dd>${item.partial} responsibilities</dd></div>
+        <div><dt>Illustrative work deferred</dt><dd>${item.deferredHours}h — requires schedule checks</dd></div>
+        <div><dt>Verified new cover</dt><dd>${item.qualifiedCoverHours}h; no new authority</dd></div>
+        <div><dt>Mentoring impact</dt><dd>${safe(item.mentorHours===0?'No additional hours assumed':'Review mentor capacity')}</dd></div>
+      </dl>
+      <p><strong>Support:</strong> ${safe(item.support)}</p>
+      <p><strong>Unresolved risk:</strong> ${safe(item.risk)}</p>
+      <p><strong>Human owner:</strong> ${safe(item.owner)}</p>
+      <p><strong>Next review:</strong> ${safe(item.followUp)}</p>
+      <p class="review-footnote"><strong>Assumption:</strong> ${safe(item.assumption)}</p>
+      ${button(comparison.proposedId===item.id?'✓ Proposed for review':'Propose for human review','continuity-propose',item.id,comparison.proposedId===item.id?'outline':'primary','aria-pressed="'+(comparison.proposedId===item.id)+'"')}
+    </article>`).join('')}
+    </div>
+    <div class="compare-notice" role="status"><strong>${safe(comparison.proposalValid?'A response is proposed, not approved.':'No response proposed yet.')}</strong>
+      <p>${safe(comparison.status)}</p>
+      ${comparison.proposalValid?`<div class="compare-tools">${button('Copy fictional comparison memo','copy-comparison','','outline')}${button('Download comparison JSON','download-comparison','','quiet')}</div>`:''}
+    </div>
+    <p class="review-footnote">Every option uses the same baseline. Deferred duties remain obligations; sourcing a person does not establish their qualifications, permission, cost or available hours.</p>
+  </section>`;
+}
 function decision() {
   return `${heading('05 · DECIDE WITH ACCOUNTABILITY', 'A considered decision is better than a fast one.', 'Choose an action that respects Alex’s preference, the actual evidence and the business’s responsibility for quality and safety.')}
     <div class="decision-context"><div><span class="overline">CHOSEN DEVELOPMENT PATH</span><strong>${safe(activePath().title)}</strong><span>Alex has asked for guided progression, not an unsupported appointment.</span></div><div><span class="overline">IMPORTANT LIMIT</span><strong>Independent supervision restricted</strong><span>Relevant authority and leadership requirements remain unverified.</span></div></div>
@@ -175,6 +212,7 @@ function decision() {
     ${successionPlanner()}
     ${organisationPlanner()}
     ${absenceStressTest()}
+    ${continuityResponsePanel()}
     <div class="decision-options">${decisionChoices(state).map(c=>`<div class="decision-card ${c.available?'':'decision-disabled'}"><div class="decision-symbol">${c.id==='coach'?'↻':c.id==='scope'?'↗':c.id==='redirect'?'⇄':'×'}</div><div class="decision-copy"><h3>${safe(c.title)}</h3><p>${safe(c.description)}</p>${!c.available?`<div class="blocked-reason"><span aria-hidden="true">⊘</span> ${safe(c.reason)}</div>`:''}</div>${button(c.available?'Choose action →':'Not permitted','decide',c.id,c.available?'primary':'outline',c.available?'':'disabled aria-disabled="true"')}</div>`).join('')}</div>
     <div class="note-box"><span class="note-icon">i</span><p><strong>Human decision required:</strong> This is a controlled educational simulation. In a real workplace, assessor scope, company policy, work health and safety duties, and employment obligations must be verified independently.</p></div>
     ${progressButtons({next:false})}`;
@@ -199,11 +237,19 @@ function liveBrief() {
     ${state.decision?`<div class="sidebar-decision"><strong>Decision recorded</strong><p>${safe(state.decision.action)}</p>${button('View outcome →','step','5','outline')}</div>`:''}
     </section><div class="principle-card"><span class="overline">THE CORE DISTINCTION</span><p>Trained <span>≠</span> competent<br>Competent <span>≠</span> authorised</p><small>Assessment supports a human decision. It doesn't replace one.</small></div></aside>`;
 }
-function footer() {return `<footer class="app-footer"><span>WORKFORCE CAPABILITY & DEVELOPMENT · PROTOTYPE V0.7 · ISSUE #13</span><span>Fictional data only · Decisions are illustrative · <a href="https://github.com/NathanTaylorOps/workforce-capability-development" target="_blank" rel="noopener noreferrer">View source ↗</a></span></footer>`;}
+function footer() {return `<footer class="app-footer"><span>WORKFORCE CAPABILITY & DEVELOPMENT · PROTOTYPE V0.9 · ISSUE #15</span><span>Fictional data only · Decisions are illustrative · <a href="https://github.com/NathanTaylorOps/workforce-capability-development" target="_blank" rel="noopener noreferrer">View source ↗</a></span></footer>`;}
 function pageContent() {return [brief, pathway, plan, evidence, decision, outcome][state.step]();}
 function render({ focusMain = false }={}) {
   root.innerHTML = `${topbar()}<div class="workspace">${sidebar()}<main id="main" class="content" tabindex="-1" aria-labelledby="page-title">${notice?`<div class="toast" role="status">${safe(notice)}</div>`:''}<div class="mobile-progress">STEP ${String(state.step+1).padStart(2,'0')} OF ${STEPS.length} · ${safe(STEPS[state.step].title)}</div>${pageContent()}</main>${liveBrief()}</div>${footer()}`;
   if (focusMain) root.querySelector('#main')?.focus({preventScroll: true});
+}
+function downloadComparison() {
+  const record = continuityComparisonRecord(state);
+  const blob = new Blob([JSON.stringify(record,null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href=url; link.download='fictional-continuity-comparison.json'; link.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 function downloadMemo() {
   if (!state.decision) return;
@@ -237,6 +283,12 @@ root.addEventListener('click', async event => {
       case 'absence': state = chooseAbsenceEvent(state, value === 'none' ? null : value); notice = 'Hypothetical critical-role availability updated. Existing work and assessed skills are unchanged.'; break;
       case 'cover-task': state = chooseCoverTask(state, value); notice = 'Duty selected for a fictional suitability review, not a staffing change.'; break;
       case 'cover-candidate': state = chooseCoverCandidate(state, value); notice = 'Suitability limits reviewed; authority and availability remain unverified.'; break;
+      case 'continuity-propose': state = proposeContinuityResponse(state,value); notice = 'Proposed for human review only; the workforce remains uncovered where shown.'; break;
+      case 'copy-comparison':
+        if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable. Download the JSON comparison instead.');
+        await navigator.clipboard.writeText(continuityComparisonMemo(continuityComparisonRecord(state)));
+        notice='Fictional, unapproved comparison memo copied.'; break;
+      case 'download-comparison': downloadComparison(); notice='Fictional, unapproved comparison downloaded.'; break;
       case 'organisation': state = chooseOrganisationPlan(state, value); notice = 'Organisation-wide resource response selected; capacity confirmation required.'; break;
       case 'confirm-organisation': state = confirmOrganisationPlan(state); notice = 'Fictional organisational resource review recorded; staffing and appointments remain unverified.'; break;
       case 'training': state = rescheduleTraining(state); notice = 'Fictional manager support commitment rescheduled.'; break;

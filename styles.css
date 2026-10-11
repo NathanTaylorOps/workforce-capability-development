@@ -101,3 +101,22 @@
 .cover-caution{border-top:1px solid #e8cead;padding-top:12px;color:#744e22;font-weight:600}
 .absence-task .btn{margin-top:12px;white-space:normal;text-align:left}
 @media(max-width:700px){.cover-review{padding:14px}.cover-factors{grid-template-columns:1fr}.cover-candidate{flex:1 1 100%}}
+
+/* Continuity comparison — same baseline; no implied approval */
+.compare-card{margin:24px 0}.compare-card .card-head{align-items:flex-start}
+.compare-baseline{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:13px 16px;background:#eaf2ef;border:1px solid #cfdfd9;border-radius:12px;margin:16px 0}
+.compare-baseline strong{flex:1 1 230px}.compare-baseline span{font-size:.81rem;font-weight:650;padding:5px 9px;border-radius:99px;background:white;border:1px solid #cfdfd9}
+.compare-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.compare-response{border:1px solid var(--border);background:white;border-radius:14px;padding:20px;min-width:0}
+.compare-response.compare-proposed{border:2px solid var(--teal);padding:19px;background:#f7fbf9}
+.compare-response h4{font-size:1.08rem;line-height:1.3;margin:10px 0}
+.compare-response p{font-size:.82rem;overflow-wrap:anywhere}
+.compare-response dl{display:grid;gap:1px;border:1px solid #e1e9e6;border-radius:11px;overflow:hidden;margin:18px 0}
+.compare-response dl>div{display:flex;justify-content:space-between;gap:12px;padding:10px 12px;background:#f7faf8;flex-wrap:wrap}
+.compare-response dt{font-size:.74rem;color:#596d64}
+.compare-response dd{margin:0;font-size:.76rem;font-weight:650;text-align:right;max-width:100%}
+.compare-response .btn{white-space:normal;min-height:44px;text-align:center}
+.compare-notice{border:1px solid #cbd9d3;background:#f3f8f5;border-radius:12px;margin:16px 0;padding:14px 16px}
+.compare-notice p{margin:6px 0 0}.compare-tools{display:flex;flex-wrap:wrap;gap:10px;margin-top:13px}
+@media(max-width:900px){.compare-columns{grid-template-columns:1fr}}
+@media(max-width:560px){.compare-card{padding:15px}.compare-response{padding:16px}.compare-response.compare-proposed{padding:15px}.compare-response dl>div{display:block}.compare-response dd{display:block;text-align:left;margin-top:4px}.compare-tools .btn{width:100%}}

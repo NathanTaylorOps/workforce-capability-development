@@ -1,7 +1,9 @@
+import { overview } from './overview.js';
 import { ABSENCE_EVENTS, COVERAGE_OPTIONS, SUCCESSION_OPTIONS, ORGANISATION_OPTIONS, PATHWAYS, SCENARIO_ASSUMPTIONS, SCENARIO_NAME, SKILLS, STEPS, WEEKLY_CHECKIN, WORKFORCE_FIXTURE } from './data.js';
 import { continuityComparison, proposeContinuityResponse, continuityComparisonRecord, continuityComparisonMemo, absenceImpact, coverSuitability, chooseCoverCandidate, chooseCoverTask, addSampleObservation, chooseAbsenceEvent, chooseCoveragePlan, choosePath, chooseSuccessionPlan, chooseOrganisationPlan, confirmOrganisationPlan, organisationImpact, confirmCoveragePlan, confirmSuccessionPlan, decide, decisionChoices, hearEmployee, initialState, memoText, observationsFor, recordMentoring, recordWeeklyReview, rescheduleTraining, reviewEvidence, selectSkill, skillById, skillStatus, skillStatusLabel, successionImpact, supportSummary, updateStep, workforceImpact } from './engine.js';
 
 let state = initialState();
+let view = 'overview';
 let notice = '';
 const root = document.getElementById('app');
 const safe = input => String(input).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
@@ -24,7 +26,7 @@ function sidebar() {
 function topbar() {
   return `<header class="topbar">
     <div class="brand"><div class="brand-mark" aria-hidden="true">W<span>.</span></div><div class="brand-text"><strong>Workforce Capability</strong><span>& Development</span></div></div>
-    <div class="top-actions"><span class="fiction-pill"><span class="fiction-dot"></span> FICTIONAL CASE STUDY</span>${button('↺ <span class="reset-label">Reset scenario</span>', 'reset', '', 'quiet')}</div>
+    <div class="top-actions"><span class="fiction-pill"><span class="fiction-dot"></span> FICTIONAL CASE STUDY</span>${view === 'overview' ? button('Open scenario →', 'enter-scenario') : `${button('Project overview', 'show-overview', '', 'quiet')}${button('↺ <span class="reset-label">Reset scenario</span>', 'reset', '', 'quiet')}`}</div>
   </header>`;
 }
 function heading(kicker, title, desc) {return `<div class="section-heading"><span class="overline">${kicker}</span><h1 id="page-title">${title}</h1><p>${desc}</p></div>`;}
@@ -240,7 +242,7 @@ function liveBrief() {
 function footer() {return `<footer class="app-footer"><span>WORKFORCE CAPABILITY & DEVELOPMENT · PROTOTYPE V0.9 · ISSUE #15</span><span>Fictional data only · Decisions are illustrative · <a href="https://github.com/NathanTaylorOps/workforce-capability-development" target="_blank" rel="noopener noreferrer">View source ↗</a></span></footer>`;}
 function pageContent() {return [brief, pathway, plan, evidence, decision, outcome][state.step]();}
 function render({ focusMain = false }={}) {
-  root.innerHTML = `${topbar()}<div class="workspace">${sidebar()}<main id="main" class="content" tabindex="-1" aria-labelledby="page-title">${notice?`<div class="toast" role="status">${safe(notice)}</div>`:''}<div class="mobile-progress">STEP ${String(state.step+1).padStart(2,'0')} OF ${STEPS.length} · ${safe(STEPS[state.step].title)}</div>${pageContent()}</main>${liveBrief()}</div>${footer()}`;
+  root.innerHTML = view === 'overview' ? `${topbar()}${overview()}${footer()}` : `${topbar()}<div class="workspace">${sidebar()}<main id="main" class="content" tabindex="-1" aria-labelledby="page-title">${notice?`<div class="toast" role="status">${safe(notice)}</div>`:''}<div class="mobile-progress">STEP ${String(state.step+1).padStart(2,'0')} OF ${STEPS.length} · ${safe(STEPS[state.step].title)}</div>${pageContent()}</main>${liveBrief()}</div>${footer()}`;
   if (focusMain) root.querySelector('#main')?.focus({preventScroll: true});
 }
 function downloadComparison() {
@@ -267,6 +269,8 @@ root.addEventListener('click', async event => {
   let focusMain = false;
   try {
     switch(action) {
+      case 'enter-scenario': view = 'scenario'; focusMain = true; break;
+      case 'show-overview': view = 'overview'; focusMain = true; break;
       case 'reset':
         if (state.events.length && !window.confirm('Reset this fictional scenario? All current choices and observations will be cleared.')) return;
         state = initialState(); focusMain = true; break;

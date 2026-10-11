@@ -2,7 +2,7 @@
 
 **A practical, skills-first demonstration of people development, managerial judgment and organisational capability.**
 
-**Status: Functional prototype (v0.8 published; v0.9 feature #15 under review).** The [live Leadership Studio](https://nathantaylorops.github.io/workforce-capability-development/) demonstrates skills-first development, work-based evidence, weekly management review, coverage planning and knowledge continuity. The merged v0.6 adds a four-role organisational capacity view. Proposed [feature #13](https://github.com/NathanTaylorOps/workforce-capability-development/issues/13) adds a bounded hypothetical critical-role absence exercise without granting acting authority. The site updates only after a merged change passes the Pages deployment workflow. This is a fictional portfolio demonstration, **not** a production HR, employee assessment, workforce scheduling or financial system. Direct live-browser and accessibility validation remain outstanding.
+**Status: Functional prototype (v0.9 deployed; live-browser verification pending).** The [live Leadership Studio](https://nathantaylorops.github.io/workforce-capability-development/) demonstrates skills-first development, work-based evidence, weekly management review, coverage planning and knowledge continuity. The merged v0.6 adds a four-role organisational capacity view. Proposed [feature #13](https://github.com/NathanTaylorOps/workforce-capability-development/issues/13) adds a bounded hypothetical critical-role absence exercise without granting acting authority. The site updates only after a merged change passes the Pages deployment workflow. This is a fictional portfolio demonstration, **not** a production HR, employee assessment, workforce scheduling or financial system. Direct live-browser and accessibility validation remain outstanding.
 
 ## Experience the prototype
 
@@ -140,3 +140,10 @@ This is not real-time staff availability information, personnel advice, or evide
 [Feature #15](https://github.com/NathanTaylorOps/workforce-capability-development/issues/15) adds a two-response comparison for the same Casey or Reese hypothetical absence. Both responses retain **exactly the same exposure baseline**; options differ only in illustrative work deferral, sourcing and human follow-up. No candidate, qualified hours or authority are automatically added. The visitor can propose an option for external human review, then export a clearly unapproved fictional comparison record. This is **not** a staffing, hiring, safety or commercial approval.
 
 The issue/PR conversation holds evolving requirements and verification evidence; durable scenario assumptions remain alongside the code. The feature is not available on the public Pages site until owner approval, merge and successful deployment.
+
+
+## Published-site functional smoke test — release gate #19
+
+The [release-gate issue #19](https://github.com/NathanTaylorOps/workforce-capability-development/issues/19) tracks an actual **HTTPS, browser-executed** end-to-end check rather than only local in-memory simulations. [GitHub Actions](.github/workflows/live-smoke.yml) will launch Chromium against the deployed Pages URL after successful publication, checking that real JavaScript modules load, the visitor can navigate to Step 5, compare Casey and Reese absences, preserve identical role exposure in both alternatives, export an unapproved fictional comparison, and use the mobile layout without horizontal overflow. The workflow checks the published version against the deploying commit and captures failure evidence.
+
+**Publication of this workflow is not evidence that it passed.** Keep milestone #12 open until a completed GitHub Actions run against the real HTTPS site succeeds. The automated scenario remains fictional and does not constitute a formal WCAG/accessibility audit, user acceptance test, role-authorisation check or personnel-management certification.

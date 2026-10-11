@@ -1,0 +1,41 @@
+name: Smoke test published Leadership Studio
+on:
+  workflow_run:
+    workflows: ["Publish static leadership studio"]
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live-browser:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Check out exactly the deployed commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check smoke script syntax
+        run: node --check tests/live-smoke.mjs
+      - name: Install pinned browser runner (not included in published site)
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Exercise actual published HTTPS journey
+        env:
+          LIVE_SITE_URL: https://nathantaylorops.github.io/workforce-capability-development/
+        run: node tests/live-smoke.mjs
+      - name: Upload browser evidence on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: published-browser-smoke-failure
+          path: artifacts/live-smoke/
+          if-no-files-found: ignore

@@ -134,11 +134,31 @@ async function scenario(viewport, name) {
     await page.locator('.overview-start button[data-action="enter-scenario"]').click();
     assert.match(await page.locator('#page-title').innerText(), /considered decision/);
 
+    assert.equal(await page.locator('.decision-jump a').count(),6);
+    await page.locator('button[data-action="decide"][data-value="coach"]').click();
+    await page.locator('button[data-action="save-first-management-run"]').click();
+    await page.locator('.step-link[data-value="1"]').click();
+    await page.locator('.path-card[data-value="operations"]').click();
+    await page.locator('.step-link[data-value="4"]').click();
+    await page.locator('button[data-action="decide"][data-value="redirect"]').click();
+    await page.locator('button[data-action="compare-management-runs"]').click();
+    assert.equal(await page.locator('.run-route').count(),2);
+    assert.ok((await page.locator('.run-difference-list').innerText()).includes('Development direction'));
+    const [managementDownload]=await Promise.all([
+      page.waitForEvent('download',{timeout:15000}),
+      page.locator('button[data-action="download-management-runs"]').click()
+    ]);
+    const managementPayload=JSON.parse(await readFile(await managementDownload.path(),'utf8'));
+    assert.equal(managementDownload.suggestedFilename(),'fictional-management-decision-comparison.json');
+    assert.equal(managementPayload.kind,'fictional-management-decision-comparison');
+    assert.equal(managementPayload.runs.length,2);
+    assert.equal(managementPayload.runs[0].initialFixture,managementPayload.runs[1].initialFixture);
+    assert.equal(managementPayload.independentAuthorityEstablished,false);
     const width=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
     assert.ok(width.scroll <= width.client + 2, name+': horizontal overflow '+JSON.stringify(width));
     assert.deepEqual(scriptErrors, [], name+': uncaught JavaScript errors');
     assert.deepEqual(assetFailures, [], name+': missing published JS/CSS assets');
-    console.log(name+': HTTPS page, keyboard, progression, casey/reese, comparison and downloaded JSON PASS');
+    console.log(name+': HTTPS, keyboard, role absence, same-baseline management decisions, JSON PASS');
     report.push({name,status:'passed',viewport,expectedMark});
   } catch(error) {
     await page.screenshot({path:evidenceDir+'/'+name+'-FAILED.png',fullPage:true}).catch(()=>{});

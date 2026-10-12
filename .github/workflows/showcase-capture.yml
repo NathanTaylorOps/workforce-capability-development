@@ -1,0 +1,47 @@
+name: Generate authentic showcase captures
+on:
+  push:
+    branches: [feat/showcase-media-and-readme-20261012]
+permissions:
+  contents: write
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run scenario rules
+        run: npm run check
+      - name: Install pinned browser
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Capture actual browser screens
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/showcase-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" || true' EXIT
+          sleep 2
+          node scripts/capture-showcase.mjs
+          ffmpeg -hide_banner -loglevel error -y \
+            -f concat -safe 0 -i artifacts/showcase-frames/frames.txt \
+            -filter_complex "fps=8,scale=960:-2:flags=lanczos,split[a][b];[a]palettegen=max_colors=112[p];[b][p]paletteuse=dither=bayer:bayer_scale=4" \
+            -loop 0 docs/media/leadership-studio-walkthrough.gif
+          ffmpeg -hide_banner -loglevel error -y \
+            -i docs/media/01-overview.png -vf "crop=1200:630:80:80" -frames:v 1 \
+            docs/media/leadership-studio-social.png
+          test -s docs/media/leadership-studio-walkthrough.gif
+          test -s docs/media/leadership-studio-social.png
+          du -h docs/media/*
+      - name: Commit screenshots and GIF to showcase branch
+        run: |
+          git config user.name "NathanTaylorOps"
+          git config user.email "330251779+NathanTaylorOps@users.noreply.github.com"
+          git add docs/media
+          if ! git diff --cached --quiet; then
+            git commit -m "docs: capture real Leadership Studio browser showcase [skip media]"
+            git push origin HEAD:feat/showcase-media-and-readme-20261012
+          fi

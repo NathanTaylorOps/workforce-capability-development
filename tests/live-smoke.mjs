@@ -154,6 +154,13 @@ async function scenario(viewport, name) {
     assert.equal(managementPayload.runs.length,2);
     assert.equal(managementPayload.runs[0].initialFixture,managementPayload.runs[1].initialFixture);
     assert.equal(managementPayload.independentAuthorityEstablished,false);
+    await page.locator('button[data-action="show-brief"]').click();
+    assert.equal(await page.locator('.brief-page').count(),2);
+    assert.match(await page.locator('.brief-preview').innerText(),/Next review point/);
+    const briefWidth=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
+    assert.ok(briefWidth.scroll<=briefWidth.client+2);
+    await page.locator('button[data-action="close-brief"]').click();
+    assert.equal(await page.locator('.run-route').count(),2);
     const width=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
     assert.ok(width.scroll <= width.client + 2, name+': horizontal overflow '+JSON.stringify(width));
     assert.deepEqual(scriptErrors, [], name+': uncaught JavaScript errors');

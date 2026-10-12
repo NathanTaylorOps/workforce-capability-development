@@ -29,3 +29,4 @@ jobs:
           pid=$!
           trap 'kill "$pid" || true' EXIT
           LOCAL_SITE_URL=http://127.0.0.1:8765/ node tests/entry-smoke.mjs
+          LOCAL_SITE_URL=http://127.0.0.1:8765/ node tests/brief-smoke.mjs

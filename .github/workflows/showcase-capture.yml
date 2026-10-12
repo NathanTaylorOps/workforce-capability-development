@@ -1,8 +1,16 @@
-name: Verify and regenerate showcase media
+name: Verify and generate genuine showcase media
 on:
+  push:
+    branches: [feat/showcase-media-and-readme-20261012]
+    paths:
+      - scripts/capture-linkedin.mjs
+      - .github/workflows/showcase-capture.yml
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
+concurrency:
+  group: showcase-capture
+  cancel-in-progress: true
 jobs:
   capture:
     runs-on: ubuntu-latest
@@ -12,15 +20,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Verify scenario rules
-        run: npm run check
+      - name: Verify domain rules and capture scripts
+        run: |
+          npm run check
+          node --check scripts/capture-showcase.mjs
+          node --check scripts/capture-linkedin.mjs
       - name: Install pinned Chromium
         run: |
           npm install --no-save --package-lock=false playwright@1.56.1
           npx playwright install --with-deps chromium
-      - name: Install GIF encoder
+      - name: Install video and GIF encoder
         run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
-      - name: Capture actual application screens
+      - name: Capture actual application screens and encode showcase
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/showcase-server.log 2>&1 &
           server_pid=$!
@@ -34,12 +45,62 @@ jobs:
           ffmpeg -hide_banner -loglevel error -y \
             -i docs/media/01-overview.png -vf "crop=1200:630:80:80" -frames:v 1 \
             docs/media/leadership-studio-social.png
-          test -s docs/media/leadership-studio-walkthrough.gif
-          test -s docs/media/leadership-studio-social.png
+          node scripts/capture-linkedin.mjs
+          ffmpeg -hide_banner -loglevel error -y \
+            -f concat -safe 0 -i artifacts/linkedin-teaser/gif/manifest.txt \
+            -filter_complex "fps=5,split[a][b];[a]palettegen=max_colors=128[p];[b][p]paletteuse=dither=bayer:bayer_scale=4" \
+            -frames:v 60 -loop 0 docs/media/leadership-studio-linkedin.gif
+          ffmpeg -hide_banner -loglevel error -y \
+            -f concat -safe 0 -i artifacts/linkedin-teaser/video/manifest.txt \
+            -vf "fps=15,format=yuv420p" -frames:v 180 \
+            -c:v libx264 -preset medium -crf 19 -movflags +faststart \
+            docs/media/leadership-studio-linkedin.mp4
+          cp artifacts/linkedin-teaser/video/00.png docs/media/leadership-studio-linkedin-cover.png
+      - name: Verify platform limits and output completeness
+        run: |
+          python3 - <<'PY'
+          import json,subprocess,os
+          def meta(path):
+              data=json.loads(subprocess.check_output([
+                 'ffprobe','-v','error','-count_frames','-select_streams','v:0',
+                 '-show_entries','stream=width,height,nb_read_frames,r_frame_rate',
+                 '-of','json',path],text=True))
+              return data['streams'][0]
+          gif='docs/media/leadership-studio-linkedin.gif'
+          video='docs/media/leadership-studio-linkedin.mp4'
+          g=meta(gif)
+          v=meta(video)
+          count=int(g['nb_read_frames'])
+          assert g['width']==760 and g['height']==760, g
+          assert 1<=count<=60, g
+          assert count*g['width']*g['height'] <= 36152320, g
+          assert v['width']==1080 and v['height']==1080, v
+          assert int(v['nb_read_frames'])==180, v
+          assert 0<os.path.getsize(gif)<10_000_000
+          assert 0<os.path.getsize(video)<20_000_000
+          with open('artifacts/linkedin-teaser/scene-list.json') as file:
+              scenes=json.load(file)
+          assert scenes['durationSeconds']==12 and len(scenes['scenes'])==8
+          print('GIF verified: %s frames, %s summed pixels, %s bytes' %
+             (count,count*g['width']*g['height'],os.path.getsize(gif)))
+          print('MP4 verified: %s frames at %sx%s, %s bytes' %
+             (v['nb_read_frames'],v['width'],v['height'],os.path.getsize(video)))
+          PY
           du -h docs/media/*
-      - name: Archive authentic screenshots and GIF for review
+      - name: Upload media for human inspection
         uses: actions/upload-artifact@v4
         with:
           name: leadership-studio-showcase-media
           path: docs/media/
           if-no-files-found: error
+      - name: Commit generated media to review branch
+        if: github.ref == 'refs/heads/feat/showcase-media-and-readme-20261012'
+        run: |
+          git config user.name "NathanTaylorOps"
+          git config user.email "330251779+NathanTaylorOps@users.noreply.github.com"
+          git add docs/media/
+          if ! git diff --cached --quiet; then
+            git commit -m "docs: regenerate decision-led LinkedIn visuals"
+            git pull --rebase origin feat/showcase-media-and-readme-20261012
+            git push origin HEAD:feat/showcase-media-and-readme-20261012
+          fi

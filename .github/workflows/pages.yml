@@ -27,8 +27,9 @@ jobs:
         run: npm run check
       - name: Prepare minimal static site
         run: |
-          mkdir -p _site/src
+          mkdir -p _site/src _site/docs/media
           cp index.html styles.css _site/
+          cp docs/media/leadership-studio-social.png _site/docs/media/
           cp src/app.js src/engine.js src/data.js src/overview.js src/decision-brief.js src/management-comparison.js src/management-compare-view.js _site/src/
           touch _site/.nojekyll
       - name: Set up GitHub Pages

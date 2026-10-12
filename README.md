@@ -29,6 +29,12 @@ The guided six-stage case lets you:
 
 The program uses deterministic rules. It does **not** automatically rank employees, infer suitability from personal traits or approve work.
 
+### LinkedIn showcase
+
+For a short introduction to the operating challenge, use the [12-second square LinkedIn GIF](docs/media/leadership-studio-linkedin.gif), or the [native MP4](docs/media/leadership-studio-linkedin.mp4) and its [still cover](docs/media/leadership-studio-linkedin-cover.png). The two clips follow the same real browser interaction sequence: choose a development pathway, test absence-related risk, make an accountable decision and compare the alternatives. Captions sit outside the untouched screenshots. The people and operating figures are synthetic.
+
+The GIF is 760 × 760 at 5 frames per second; the MP4 is 1080 × 1080 at 15 frames per second. The [reproducible capture script](scripts/capture-linkedin.mjs) and media verification workflow validate duration, frame count and platform limits.
+
 ### Actual product walkthrough
 
 ![Real browser screenshots showing the Leadership Studio's fictional management journey](docs/media/leadership-studio-walkthrough.gif)

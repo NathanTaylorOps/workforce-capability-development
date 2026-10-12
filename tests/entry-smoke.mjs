@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 import {readFile} from 'node:fs/promises';
 
-const browser=await chromium.launch({headless:true});
+const browser=await chromium.launch({headless:true, ...(process.env.BROWSER_DOWNLOADS_DIR ? {downloadsPath:process.env.BROWSER_DOWNLOADS_DIR} : {}), ...(process.env.BROWSER_EXECUTABLE ? {executablePath:process.env.BROWSER_EXECUTABLE} : {})});
 async function check(viewport,label){
  const context=await browser.newContext({viewport,acceptDownloads:true});
  const page=await context.newPage();
@@ -56,6 +56,22 @@ async function check(viewport,label){
   assert.equal(payload.runs[0].inputs.evidenceReviews.planning,undefined);
   assert.equal(payload.runs[1].inputs.evidenceReviews.planning,undefined);
   assert.equal(payload.independentAuthorityEstablished,false);
+  await page.locator('button[data-action="show-brief"]').click();
+  assert.equal(await page.locator('.brief-page').count(),2);
+  assert.match(await page.locator('.brief-preview').innerText(),/Next review point/);
+  let printCalls=0;
+  await page.exposeFunction('recordPrint',()=>printCalls++);
+  await page.evaluate(()=>{window.print=()=>window.recordPrint();});
+  await page.locator('button[data-action="print-brief"]').click();
+  assert.equal(printCalls,1);
+  const briefWidths=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
+  assert.ok(briefWidths.scroll<=briefWidths.client+2);
+  if(process.env.BRIEF_EVIDENCE_DIR){
+   await page.screenshot({path:process.env.BRIEF_EVIDENCE_DIR+'/'+label+'-brief.png',fullPage:true});
+   if(label==='desktop') await page.pdf({path:process.env.BRIEF_EVIDENCE_DIR+'/comparison-brief.pdf',preferCSSPageSize:true});
+  }
+  await page.locator('button[data-action="close-brief"]').click();
+  assert.equal(await page.locator('.run-route').count(),2);
   const widths=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
   assert.ok(widths.scroll<=widths.client+2,JSON.stringify({label,widths}));
   assert.deepEqual(errors,[]);

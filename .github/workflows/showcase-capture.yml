@@ -1,9 +1,8 @@
-name: Generate authentic showcase captures
+name: Verify and regenerate showcase media
 on:
-  push:
-    branches: [feat/showcase-media-and-readme-20261012]
+  workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
 jobs:
   capture:
     runs-on: ubuntu-latest
@@ -13,15 +12,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Run scenario rules
+      - name: Verify scenario rules
         run: npm run check
-      - name: Install pinned browser
+      - name: Install pinned Chromium
         run: |
           npm install --no-save --package-lock=false playwright@1.56.1
           npx playwright install --with-deps chromium
       - name: Install GIF encoder
         run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
-      - name: Capture actual browser screens
+      - name: Capture actual application screens
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/showcase-server.log 2>&1 &
           server_pid=$!
@@ -38,13 +37,9 @@ jobs:
           test -s docs/media/leadership-studio-walkthrough.gif
           test -s docs/media/leadership-studio-social.png
           du -h docs/media/*
-      - name: Commit screenshots and GIF to showcase branch
-        run: |
-          git config user.name "NathanTaylorOps"
-          git config user.email "330251779+NathanTaylorOps@users.noreply.github.com"
-          git add docs/media
-          if ! git diff --cached --quiet; then
-            git commit -m "docs: capture real Leadership Studio browser showcase [skip media]"
-            git pull --rebase origin feat/showcase-media-and-readme-20261012
-            git push origin HEAD:feat/showcase-media-and-readme-20261012
-          fi
+      - name: Archive authentic screenshots and GIF for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: leadership-studio-showcase-media
+          path: docs/media/
+          if-no-files-found: error

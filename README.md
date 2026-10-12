@@ -17,6 +17,8 @@
 5. Make an evidence-based management decision. **Independent site-supervisor appointment remains blocked** where the evidence and authority are insufficient.
 6. Review the operational consequences and copy or download a fictional decision record.
 
+The final management decision screen can now save a first fictional decision and compare a second full run against the same initial scenario. The side-by-side review shows development choices, work allocations, mentoring and unresolved authority; it does not create a real staffing or site approval. The comparison can be exported as fictional JSON.
+
 This is a **single synthetic scenario**, with deliberately simplified criteria. Its observations, characters, budget/time assumptions and outcomes are invented; nothing represents individual real-life employee records or measured business performance. **The fictional two-independent-observation requirement** is an intentionally simplified teaching rule, not a universal assessment or legal standard. Coached and independent observations are distinct; new independent evidence requires a separate simulated GM review before a narrowly scoped planning responsibility can be considered.
 
 The app does not use a backend, collect personal data, persist scenario state or require accounts. Reset returns to the initial scenario.

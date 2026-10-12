@@ -95,10 +95,10 @@ try {
   // ffmpeg concat demuxer: all frames are the actual browser-rendered application.
   const lines = [];
   for (const item of frames) {
-    lines.push('file ' + item.frame);
+    lines.push('file ' + item.frame.split('/').at(-1));
     lines.push('duration ' + item.hold);
   }
-  lines.push('file ' + frames[frames.length - 1].frame);
+  lines.push('file ' + frames[frames.length - 1].frame.split('/').at(-1));
   await writeFile(stage + '/frames.txt', lines.join('\n') + '\n');
   console.log('Captured ' + frames.length + ' GIF scenes without replacing the UI.');
 } finally {

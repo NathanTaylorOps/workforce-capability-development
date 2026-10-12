@@ -19,6 +19,8 @@ jobs:
         run: |
           npm install --no-save --package-lock=false playwright@1.56.1
           npx playwright install --with-deps chromium
+      - name: Install GIF encoder
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
       - name: Capture actual browser screens
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/showcase-server.log 2>&1 &
@@ -43,5 +45,6 @@ jobs:
           git add docs/media
           if ! git diff --cached --quiet; then
             git commit -m "docs: capture real Leadership Studio browser showcase [skip media]"
+            git pull --rebase origin feat/showcase-media-and-readme-20261012
             git push origin HEAD:feat/showcase-media-and-readme-20261012
           fi
